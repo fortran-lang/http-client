@@ -4,6 +4,9 @@ program simple_get
     type(response_type) :: response
 
     response = http_request(url='https://jsonplaceholder.typicode.com/todos/1', method=HTTP_GET)
-    print *, "Response Content : ", response%content 
+    print *, "Response Code    : ", response%status_code
+    print *, "Response Length  : ", response%content_length
+    print *, "Response Content : ", response%content
+    ! print *, "Response Content : ", response%content 
 
 end program simple_get

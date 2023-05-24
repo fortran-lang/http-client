@@ -1,5 +1,6 @@
 module http_client
   use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_fortran_env, only: i4 => int32, i8 => int64, r4 => real32, r8 => real64
   use curl
   implicit none
   private
@@ -22,6 +23,8 @@ module http_client
     character(len=:), allocatable :: content
     character(len=:), allocatable :: url
     character(len=:), allocatable :: method
+    integer                       :: status_code
+    integer(kind=c_size_t)                      :: content_length = 0 
   end type response_type
   
   ! http_client Type
@@ -101,12 +104,14 @@ function client_get_response(this) result(response)
 
   ! Send request.
   rc = curl_easy_perform(curl_ptr)
-  call curl_easy_cleanup(curl_ptr)
   
   if (rc /= CURLE_OK) then
     print '(a)', 'Error: curl_easy_perform() failed'
     stop
   end if
+  ! setting response status_code
+  rc = curl_easy_getinfo(curl_ptr, CURLINFO_RESPONSE_CODE, response%status_code)  
+  call curl_easy_cleanup(curl_ptr)
 
 end function client_get_response
 
@@ -134,7 +139,7 @@ function client_response_callback(ptr, size, nmemb, client_data) bind(c)
   if (.not. allocated(buf)) return
   response%content = response%content // buf
   deallocate (buf)
-
+  response%content_length = response%content_length + nmemb
   ! Return number of received bytes.
   client_response_callback = nmemb
 end function client_response_callback
