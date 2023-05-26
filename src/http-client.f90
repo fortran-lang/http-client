@@ -5,12 +5,12 @@ module http_client
   implicit none
   private
   ! HTTP methods:
-  integer, parameter, public :: HTTP_GET    = 1
-  integer, parameter, public :: HTTP_HEAD   = 2
-  integer, parameter, public :: HTTP_POST   = 3
-  integer, parameter, public :: HTTP_PUT    = 4
+  integer, parameter, public :: HTTP_GET = 1
+  integer, parameter, public :: HTTP_HEAD = 2
+  integer, parameter, public :: HTTP_POST = 3
+  integer, parameter, public :: HTTP_PUT = 4
   integer, parameter, public :: HTTP_DELETE = 5
-  integer, parameter, public :: HTTP_PATCH  = 6
+  integer, parameter, public :: HTTP_PATCH = 6
 
   ! Request Type
   type :: request_type
@@ -23,8 +23,8 @@ module http_client
     character(len=:), allocatable :: content
     character(len=:), allocatable :: url
     character(len=:), allocatable :: method
-    integer                       :: status_code
-    integer(kind=c_size_t)                      :: content_length = 0 
+    integer :: status_code
+    integer(kind=c_size_t) :: content_length = 0
   end type response_type
   
   ! http_client Type
@@ -50,11 +50,11 @@ contains
 
 ! Constructor for request_type type.
 function new_request(url, method) result(response)
-  character(len=*)                              :: url
-  integer, optional                             :: method
-  type(request_type)                            :: request
-  type(response_type)                           :: response
-  type(client_type)                             :: client
+  character(len=*) :: url
+  integer, optional :: method
+  type(request_type) :: request
+  type(response_type) :: response
+  type(client_type) :: client
 
   if(present(method)) then 
     if(method == 1) then
@@ -80,10 +80,10 @@ function new_request(url, method) result(response)
 end function new_request
 
 function client_get_response(this) result(response)
-  class(client_type)                            :: this
-  type(response_type), target                   :: response
-  type(c_ptr)                                   :: curl_ptr
-  integer                                       :: rc
+  class(client_type) :: this
+  type(response_type), target :: response
+  type(c_ptr) :: curl_ptr
+  integer :: rc
   ! logic for populating response using fortran-curl
   response%url = this%request%url
   response%method = this%request%method
@@ -94,13 +94,13 @@ function client_get_response(this) result(response)
     stop 'Error: curl_easy_init() failed'
   end if
   ! setting request URL
-  rc = curl_easy_setopt(curl_ptr, CURLOPT_URL,              this%request%url // c_null_char)
+  rc = curl_easy_setopt(curl_ptr, CURLOPT_URL, this%request%url // c_null_char)
   ! setting request method
-  rc = curl_easy_setopt(curl_ptr, CURLOPT_CUSTOMREQUEST,    this%request%method // c_null_char)
+  rc = curl_easy_setopt(curl_ptr, CURLOPT_CUSTOMREQUEST, this%request%method // c_null_char)
   ! setting callback for writing received data
-  rc = curl_easy_setopt(curl_ptr, CURLOPT_WRITEFUNCTION,    c_funloc(client_response_callback))
+  rc = curl_easy_setopt(curl_ptr, CURLOPT_WRITEFUNCTION, c_funloc(client_response_callback))
   ! setting response pointer to write callback
-  rc = curl_easy_setopt(curl_ptr, CURLOPT_WRITEDATA,        c_loc(response))
+  rc = curl_easy_setopt(curl_ptr, CURLOPT_WRITEDATA, c_loc(response))
 
   ! Send request.
   rc = curl_easy_perform(curl_ptr)
@@ -116,13 +116,13 @@ function client_get_response(this) result(response)
 end function client_get_response
 
 function client_response_callback(ptr, size, nmemb, client_data) bind(c)
-  type(c_ptr),            intent(in), value :: ptr               !! C pointer to a chunk of the response.
-  integer(kind=c_size_t), intent(in), value :: size              !! Always 1.
-  integer(kind=c_size_t), intent(in), value :: nmemb             !! Size of the response chunk.
-  type(c_ptr),            intent(in), value :: client_data       !! C pointer to argument passed by caller.
-  integer(kind=c_size_t)                    :: client_response_callback !! Function return value.
-  type(response_type), pointer              :: response          !! Stores response.
-  character(len=:), allocatable             :: buf
+  type(c_ptr), intent(in), value :: ptr !! C pointer to a chunk of the response.
+  integer(kind=c_size_t), intent(in), value :: size !! Always 1.
+  integer(kind=c_size_t), intent(in), value :: nmemb !! Size of the response chunk.
+  type(c_ptr), intent(in), value :: client_data !! C pointer to argument passed by caller.
+  integer(kind=c_size_t) :: client_response_callback !! Function return value.
+  type(response_type), pointer :: response !! Stores response.
+  character(len=:), allocatable :: buf
 
   client_response_callback = int(0, kind=c_size_t)
 

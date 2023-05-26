@@ -7,6 +7,5 @@ program simple_get
     print *, "Response Code    : ", response%status_code
     print *, "Response Length  : ", response%content_length
     print *, "Response Content : ", response%content
-    ! print *, "Response Content : ", response%content 
 
 end program simple_get
