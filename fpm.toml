@@ -18,3 +18,5 @@ implicit-typing = false
 implicit-external = false
 source-form = "free"
 
+[dependencies]
+fortran-curl = {git = "https://github.com/interkosmos/fortran-curl.git"}
