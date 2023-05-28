@@ -1,4 +1,4 @@
-module http_server
+module http_client
     use iso_c_binding
     use curl
     use http_request, only : request_type
@@ -6,7 +6,7 @@ module http_server
     
     implicit none
 
-    ! http_server Type
+    ! http_client Type
     type :: client_type
         type(request_type) :: request
         type(c_ptr) :: curl_ptr
@@ -112,6 +112,9 @@ contains
         case(6)
             status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'PATCH' // c_null_char)
             response%method = 'PATCH'
+        case default
+            ! print *, "ERROR : method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH"
+            error stop "Method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH"
         end select
     end function client_set_method
 
@@ -145,4 +148,4 @@ contains
     end function client_response_callback
       
 
-end module http_server
+end module http_client
