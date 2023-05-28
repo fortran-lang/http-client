@@ -1,11 +1,12 @@
 program simple_get
-    use http_client, only : response_type, http_request, HTTP_GET
+    use http, only : response_type, request
     implicit none
     type(response_type) :: response
 
-    response = http_request(url='https://jsonplaceholder.typicode.com/todos/1', method=HTTP_GET)
+    response = request(url='https://jsonplaceholder.typicode.com/todos/1')
     print *, "Response Code    : ", response%status_code
     print *, "Response Length  : ", response%content_length
+    print *, "Response Method  : ", response%method
     print *, "Response Content : ", response%content
 
 end program simple_get
