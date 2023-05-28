@@ -79,8 +79,8 @@ contains
         rc = curl_easy_perform(this%curl_ptr)
         
         if (rc /= CURLE_OK) then
-          print '(a)', 'Error: curl_easy_perform() failed'
-          stop
+            response%ok = .false.
+            response%err_msg = curl_easy_strerror(rc)
         end if
         ! setting response status_code
         rc = curl_easy_getinfo(this%curl_ptr, CURLINFO_RESPONSE_CODE, response%status_code)  
@@ -113,7 +113,6 @@ contains
             status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'PATCH' // c_null_char)
             response%method = 'PATCH'
         case default
-            ! print *, "ERROR : method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH"
             error stop "Method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH"
         end select
     end function client_set_method

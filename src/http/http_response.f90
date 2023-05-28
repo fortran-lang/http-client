@@ -3,11 +3,10 @@ module http_response
     implicit none
       ! Response Type
     type, public :: response_type
-        character(len=:), allocatable :: content
-        character(len=:), allocatable :: url
-        character(len=:), allocatable :: method
+        character(len=:), allocatable :: url,content,method,err_msg
         integer :: status_code = 0
         integer(kind=c_size_t) :: content_length = 0
+        logical :: ok = .true.
     end type response_type
 contains
     
