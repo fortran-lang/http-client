@@ -1,6 +1,7 @@
 module http_client
     use iso_c_binding
     use curl
+    use fhash, only:  key=>fhash_key
     use http_request, only : request_type
     use http_response, only : response_type
     
@@ -77,9 +78,12 @@ contains
         rc = this%client_set_method(response)
         ! setting callback for writing received data
         rc = curl_easy_setopt(this%curl_ptr, CURLOPT_WRITEFUNCTION, c_funloc(client_response_callback))
-        ! setting response pointer to write callback
+        ! setting response content pointer to write callback
         rc = curl_easy_setopt(this%curl_ptr, CURLOPT_WRITEDATA, c_loc(response))
-      
+        ! setting callback for writing received headers
+        rc = curl_easy_setopt(this%curl_ptr, CURLOPT_HEADERFUNCTION, c_funloc(client_header_callback))
+        ! setting response header pointer to write callback
+        rc = curl_easy_setopt(this%curl_ptr, CURLOPT_HEADERDATA, c_loc(response))
         ! Send request.
         rc = curl_easy_perform(this%curl_ptr)
         
@@ -151,5 +155,42 @@ contains
         client_response_callback = nmemb
 
     end function client_response_callback
+
+    function client_header_callback(ptr, size, nmemb, client_data) bind(c)
+        type(c_ptr), intent(in), value :: ptr 
+        integer(kind=c_size_t), intent(in), value :: size 
+        integer(kind=c_size_t), intent(in), value :: nmemb
+        type(c_ptr), intent(in), value :: client_data
+        integer(kind=c_size_t) :: client_header_callback 
+        type(response_type), pointer :: response 
+        character(len=:), allocatable :: buf, h_key, h_value
+        integer :: i
+      
+        client_header_callback = int(0, kind=c_size_t)
+      
+        ! Are the passed C pointers associated?
+        if (.not. c_associated(ptr)) return
+        if (.not. c_associated(client_data)) return
+      
+        ! Convert C pointer to Fortran pointer.
+        call c_f_pointer(client_data, response)
+        if (.not. allocated(response%header_string)) response%header_string = ''
+      
+        ! Convert C pointer to Fortran allocatable character.
+        call c_f_str_ptr(ptr, buf, nmemb)
+        if (.not. allocated(buf)) return
+        if(len(response%header_string) /= 0 .and. len(buf) > 2) then
+            i = index(buf, ':')
+            h_key = trim(buf(:i-1))
+            h_value = buf(i+2 : )
+            h_value = h_value( : len(h_value)-2)
+            call response%header%set(key(h_key), value=h_value)
+        end if
+        response%header_string = response%header_string // buf
+        deallocate (buf)
+        ! Return number of received bytes.
+        client_header_callback = nmemb
+
+    end function client_header_callback
       
 end module http_client
