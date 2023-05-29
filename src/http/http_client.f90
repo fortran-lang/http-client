@@ -29,8 +29,8 @@ module http_client
 contains
     ! Constructor for request_type type.
     function new_request(url, method) result(response)
-        character(len=*) :: url
-        integer, optional :: method
+        character(len=*), intent(in) :: url
+        integer, intent(in), optional :: method
         type(request_type) :: request
         type(response_type) :: response
         type(client_type) :: client
@@ -47,24 +47,29 @@ contains
     end function new_request
     ! Constructor for client_type type.
     function new_client(request) result(client)
+        type(request_type), intent(in) :: request
         type(client_type) :: client
-        type(request_type) :: request
 
         client%request = request
+
     end function new_client
 
     function client_get_response(this) result(response)
-        class(client_type) :: this
+        class(client_type), intent(inout) :: this
         type(response_type), target :: response
         integer :: rc
+
         ! logic for populating response using fortran-curl
         response%url = this%request%url
-        ! response%method = this%request%method
       
         this%curl_ptr = curl_easy_init()
       
         if (.not. c_associated(this%curl_ptr)) then
-          stop 'Error: curl_easy_init() failed'
+            response%ok = .false.
+            response%err_msg = "The initialization of a new easy handle using the 'curl_easy_init()'&
+            & function failed. This can occur due to insufficient memory available in the system. &
+            & Additionally, if libcurl is not installed or configured properly on the system"
+            return
         end if
         ! setting request URL
         rc = curl_easy_setopt(this%curl_ptr, CURLOPT_URL, this%request%url // c_null_char)
@@ -89,7 +94,7 @@ contains
     end function client_get_response
 
     function client_set_method(this,  response) result(status)
-        class(client_type) :: this
+        class(client_type), intent(inout) :: this
         type(response_type), intent(out) :: response
         integer :: status
 
@@ -144,7 +149,7 @@ contains
         response%content_length = response%content_length + nmemb
         ! Return number of received bytes.
         client_response_callback = nmemb
+
     end function client_response_callback
       
-
 end module http_client
