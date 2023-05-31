@@ -1,11 +1,14 @@
 module http_client
     use iso_c_binding
     use curl
-    use fhash, only:  key=>fhash_key
-    use http_request, only : request_type
-    use http_response, only : response_type
+    use fhash, only: key => fhash_key
+    use http_request, only: request_type
+    use http_response, only: response_type
     
     implicit none
+
+    private
+    public :: request
 
     ! http_client Type
     type :: client_type
@@ -23,9 +26,6 @@ module http_client
     interface request
         module procedure new_request
     end interface request
-
-    public :: request
-
     
 contains
     ! Constructor for request_type type.
