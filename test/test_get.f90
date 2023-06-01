@@ -56,6 +56,7 @@ program test_get
     if (.not. ok) then
         msg = msg // 'Failed.'
         write(stderr, *) msg
+        error stop 1
     else
         msg = msg // 'All Test case Passed.'
         print '(a)', msg 
