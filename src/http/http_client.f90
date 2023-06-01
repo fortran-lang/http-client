@@ -179,12 +179,15 @@ contains
         ! Convert C pointer to Fortran allocatable character.
         call c_f_str_ptr(ptr, buf, nmemb)
         if (.not. allocated(buf)) return
+        ! Parsing Header, and storing in hashmap
         if(len(response%header_string) /= 0 .and. len(buf) > 2) then
             i = index(buf, ':')
             h_key = trim(buf(:i-1))
             h_value = buf(i+2 : )
             h_value = h_value( : len(h_value)-2)
-            call response%header%set(key(h_key), value=h_value)
+            if(len(h_value) > 0 .and. len(h_key) > 0) then
+                call response%header%set(key(h_key), value=h_value)
+            end if
         end if
         response%header_string = response%header_string // buf
         deallocate (buf)

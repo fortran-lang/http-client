@@ -3,14 +3,14 @@ program simple_get
     implicit none
     type(response_type) :: response
 
-    response = request(url='http://jsonplaceholder.typicode.com/todos/1')
+    response = request(url='https://jsonplaceholder.typicode.com/todos/1')
     if(.not. response%ok) then
-        print *,"Error message : ", response%err_msg
+        print *,'Error message : ', response%err_msg
     else
-        print *, "Response Code    : ", response%status_code
-        print *, "Response Length  : ", response%content_length
-        print *, "Response Method  : ", response%method
-        print *, "Response Content : ", response%content
+        print *, 'Response Code    : ', response%status_code
+        print *, 'Response Length  : ', response%content_length
+        print *, 'Response Method  : ', response%method
+        print *, 'Response Content : ', response%content
     end if
 
 end program simple_get
