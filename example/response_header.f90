@@ -9,7 +9,7 @@ program response_header
     type(response_type) :: response
     character(:), allocatable :: val
 
-    response = request(url='http://jsonplaceholder.typicode.com/todos/1')
+    response = request(url='https://gorest.co.in/public/v2/todos')
     if(.not. response%ok) then
         print *,"Error message : ", response%err_msg
     else
