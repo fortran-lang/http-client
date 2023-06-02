@@ -21,6 +21,9 @@ jobs:
       uses: fortran-lang/setup-fpm@v5
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Install curl development headers
+      if: contains( matrix.os, 'ubuntu' )
+      run: sudo apt install -y libcurl4-openssl-dev
     - name: Build with GCC
       run: fpm build
     - name: Test with GCC
