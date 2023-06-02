@@ -34,8 +34,8 @@ jobs:
     - name: Install GCC compilers on macOS
       if: contains( matrix.os, 'macos')
       run: |
-          brew install gcc@${GCC_V} || brew upgrade gcc@${GCC_V} || true
-          brew link gcc@${GCC_V}
+          brew install gcc@${{ matrix.gcc_v }} || brew upgrade gcc@${{ matrix.gcc_v }} || true
+          brew link gcc@${{ matrix.gcc_v }}
 
     - name: Build with GCC
       run: fpm build
