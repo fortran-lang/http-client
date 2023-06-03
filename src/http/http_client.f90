@@ -1,6 +1,7 @@
 module http_client
     use iso_c_binding
     use curl
+    use stdlib_string_type
     use fhash, only: key => fhash_key
     use http_request, only: request_type
     use http_response, only: response_type
@@ -93,6 +94,7 @@ contains
         end if
         ! setting response status_code
         rc = curl_easy_getinfo(this%curl_ptr, CURLINFO_RESPONSE_CODE, response%status_code)  
+        call  response%set_header_key()
         call curl_easy_cleanup(this%curl_ptr)
       
     end function client_get_response
@@ -122,7 +124,7 @@ contains
             status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'PATCH' // c_null_char)
             response%method = 'PATCH'
         case default
-            error stop "Method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH"
+            error stop 'Method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH'
         end select
     end function client_set_method
 
@@ -174,23 +176,21 @@ contains
       
         ! Convert C pointer to Fortran pointer.
         call c_f_pointer(client_data, response)
-        if (.not. allocated(response%header_string)) response%header_string = ''
       
         ! Convert C pointer to Fortran allocatable character.
         call c_f_str_ptr(ptr, buf, nmemb)
         if (.not. allocated(buf)) return
         ! Parsing Header, and storing in hashmap
-        if(len(response%header_string) /= 0 .and. len(buf) > 2) then
-            i = index(buf, ':')
+        i = index(buf, ':')
+        if(i /= 0 .and. len(buf) > 2) then
             h_key = trim(buf(:i-1))
             h_value = buf(i+2 : )
             h_value = h_value( : len(h_value)-2)
             if(len(h_value) > 0 .and. len(h_key) > 0) then
-                call response%header%set(key(h_key), value=h_value)
+                call response%update_header_fhash(h_key, h_value)
             end if
         end if
-        response%header_string = response%header_string // buf
-        deallocate (buf)
+        deallocate(buf)
         ! Return number of received bytes.
         client_header_callback = nmemb
 

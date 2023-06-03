@@ -1,15 +1,13 @@
 program test_get
     use iso_fortran_env, only: stderr => error_unit
-    use fhash, only:  key => fhash_key, fhash_iter_t, fhash_key_t
+    use stdlib_string_type
     use http, only : response_type, request
     implicit none
     type(response_type) :: res
     character(:), allocatable :: msg, original_content
     logical :: ok = .true.
+    type(string_type), allocatable :: header_array(:)
 
-    type(fhash_iter_t) :: iter
-    class(fhash_key_t), allocatable :: ikey
-    class(*), allocatable :: idata
     integer :: header_counter = 0, original_header_count = 19
 
     original_content = '{"id":15726,"user_id":2382773,&
@@ -43,11 +41,8 @@ program test_get
         msg = msg // 'test case 3, '
     end if
 
-    iter = fhash_iter_t(res%header)
-    do while(iter%next(ikey,idata))
-        header_counter = header_counter + 1
-    end do
-
+    header_array = res%header_keys()
+    header_counter = size(header_array)
     if (header_counter /= original_header_count) then
         ok = .false.
         msg = msg // 'test case 4, '
