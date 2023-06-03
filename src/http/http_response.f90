@@ -16,16 +16,18 @@ module http_response
         type(fhash_tbl_t), private :: header_fhash
         type(string_type), private, allocatable :: header_key(:)
         integer, private :: header_count = 0
- 
+        
     contains
         procedure :: set_header_key
         procedure :: header_keys
-        procedure :: header_value
+        procedure :: header_string_type_key
+        procedure :: header_char_key
+        generic :: header_value => header_string_type_key, header_char_key
         procedure :: update_header_fhash
     end type response_type
     
 contains
-
+    
     subroutine update_header_fhash(this, h_key, h_val)
         class(response_type), intent(inout) :: this
         character(:), intent(in), allocatable :: h_key, h_val
@@ -43,7 +45,7 @@ contains
         allocate(this%header_key(this%header_count))
         iter = fhash_iter_t(this%header_fhash)
         do while(iter%next(ikey,idata))
-            this%header_key(i) = ikey%to_string()
+            this%header_key(i) = trim(ikey%to_string())
             i = i + 1
         end do
     end subroutine set_header_key
@@ -54,7 +56,7 @@ contains
         header_keys = this%header_key
     end function header_keys
 
-    function header_value(this, h_key)
+    function header_string_type_key(this, h_key) result(header_value)
         class(response_type) :: this
         type(string_type) :: h_key
         character(:), allocatable :: header_value
@@ -63,6 +65,17 @@ contains
         else
             header_value = ''
         end if
-    end function header_value
+    end function header_string_type_key
+
+    function header_char_key(this, h_key) result(header_value)
+        class(response_type) :: this
+        character(*) :: h_key
+        character(:), allocatable :: header_value
+        if(len(h_key) /= 0) then
+            call this%header_fhash%get(key(h_key),header_value)
+        else
+            header_value = ''
+        end if
+    end function header_char_key
 
 end module http_response
