@@ -5,6 +5,7 @@ module http_client
     use fhash, only: key => fhash_key
     use http_request, only: request_type
     use http_response, only: response_type
+    use http_header, only : header_type
     
     implicit none
 
@@ -30,18 +31,30 @@ module http_client
     
 contains
     ! Constructor for request_type type.
-    function new_request(url, method) result(response)
+    function new_request(url, method, header) result(response)
         character(len=*), intent(in) :: url
         integer, intent(in), optional :: method
+        type(header_type), intent(inout), optional :: header
+        type(header_type) :: default_header
         type(request_type) :: request
         type(response_type) :: response
         type(client_type) :: client
 
+        ! setting default HTTP method
         if(present(method)) then 
            request%method = method
         else
             request%method = 1
         end if
+        ! setting defautl request headers
+        call default_header%set_header('User-Agent', 'fortran-http/1.0.0')
+        if(present(header)) then 
+            call header%set_header('User-Agent', 'fortran-http/1.0.0')
+            request%header = header
+         else
+             request%header = default_header
+         end if
+        !  setting request url
         request%url = url
         client = client_type(request=request)
         response = client%client_get_response()
@@ -63,7 +76,11 @@ contains
 
         ! logic for populating response using fortran-curl
         response%url = this%request%url
-      
+        
+        ! if(this%request%header%header_count /= 0) then
+        !     print *, this%request%header%header_count
+        ! end if
+
         this%curl_ptr = curl_easy_init()
       
         if (.not. c_associated(this%curl_ptr)) then
@@ -77,6 +94,8 @@ contains
         rc = curl_easy_setopt(this%curl_ptr, CURLOPT_URL, this%request%url // c_null_char)
         ! setting request method
         rc = this%client_set_method(response)
+        ! setting request header
+        rc = curl_easy_setopt(this%curl_ptr, CURLOPT_HTTPHEADER, this%request%header%header_list_ptr);
         ! setting callback for writing received data
         rc = curl_easy_setopt(this%curl_ptr, CURLOPT_WRITEFUNCTION, c_funloc(client_response_callback))
         ! setting response content pointer to write callback

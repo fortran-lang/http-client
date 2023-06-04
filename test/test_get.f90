@@ -1,12 +1,13 @@
 program test_get
     use iso_fortran_env, only: stderr => error_unit
     use stdlib_string_type
-    use http, only : response_type, request
+    use http, only : response_type, request, header_type
     implicit none
     type(response_type) :: res
     character(:), allocatable :: msg, original_content
     logical :: ok = .true.
     type(string_type), allocatable :: header_array(:)
+    type(header_type) :: request_header
 
     integer :: header_counter = 0, original_header_count = 19
 
@@ -15,7 +16,13 @@ program test_get
     &"due_on":"2023-06-09T00:00:00.000+05:30",&
     &"status":"completed"}'
 
-    res = request(url='https://gorest.co.in/public/v2/todos/15726')
+    ! setting request header
+    call request_header%set_header('header-1', 'value-1')
+    call request_header%set_header('header-2', 'value-2')
+    call request_header%set_header('header-3', 'value-3')
+
+
+    res = request(url='https://gorest.co.in/public/v2/todos/15726', header=request_header)
     
     msg = 'test_get: '
     if (.not. res%ok) then

@@ -1,4 +1,6 @@
 module http_request
+    use, intrinsic :: iso_c_binding
+    use http_header, only : header_type
     implicit none
 
     private
@@ -17,6 +19,7 @@ module http_request
     type :: request_type
         character(len=:), allocatable :: url
         integer :: method
+        type(header_type) :: header
     end type request_type
 
 end module http_request
