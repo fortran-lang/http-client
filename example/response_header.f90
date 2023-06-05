@@ -1,9 +1,9 @@
 program response_header
-    use stdlib_string_type
+    use stdlib_string_type, only: string_type, write(formatted)
     use http, only: response_type, request, header_type
     implicit none
     type(response_type) :: response
-    type(string_type), allocatable :: headers(:)
+    type(string_type), allocatable :: header_keys(:)
     type(header_type) :: req_header
     character(:), allocatable :: val
     integer :: i = 0
@@ -19,11 +19,10 @@ program response_header
         print *,'Error message : ', response%err_msg
     else
         print *, '=========== Response header value by passing string_type ============'
-        ! headers is array of header key
-        headers = response%header%keys()
-        do i = 1, size(headers)
-            val = response%header%value(headers(i))
-            print *, headers(i), ': ', val
+        header_keys = response%header%keys()
+        do i = 1, size(header_keys)
+            val = response%header%value(header_keys(i))
+            print *, header_keys(i), ': ', val
         end do
         print *, '=========== Response header value by passing characters ============'
         val = response%header%value('date')
