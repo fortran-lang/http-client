@@ -14,8 +14,7 @@ program response_header
     call req_header%set('h3', 'v3')
     call req_header%set('h4', 'v4')
 
-    ! response = request(url='https://gorest.co.in/public/v2/todos/15726', header=req_header)
-    response = request(url='http://localhost:3002/', header=req_header)
+    response = request(url='https://gorest.co.in/public/v2/todos/15726', header=req_header)
     if(.not. response%ok) then
         print *,'Error message : ', response%err_msg
     else

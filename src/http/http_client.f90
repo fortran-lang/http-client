@@ -73,8 +73,11 @@ contains
     function client_get_response(this) result(response)
         class(client_type), intent(inout) :: this
         type(response_type), target :: response
-        type(c_ptr) :: curl_ptr = c_null_ptr, header_list_ptr = c_null_ptr
+        type(c_ptr) :: curl_ptr,  header_list_ptr
         integer :: rc, i
+        
+        curl_ptr = c_null_ptr
+        header_list_ptr = c_null_ptr
         
         ! logic for populating response using fortran-curl
         response%url = this%request%url

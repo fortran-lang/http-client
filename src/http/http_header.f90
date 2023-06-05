@@ -22,7 +22,7 @@ contains
     subroutine update_header_fhash(this, h_key, h_val)
         class(header_type), intent(inout) :: this
         character(*), intent(in) :: h_key, h_val
-        if(len(trim(h_key)) > 0 .and.  len(trim(h_val)) > 0) then
+        if(len_trim(h_key) > 0 .and.  len_trim(h_val) > 0) then
             call this%header_fhash%set(key(h_key), value=h_val)
             this%header_count = this%header_count + 1
         end if
@@ -34,7 +34,7 @@ contains
         class(fhash_key_t), allocatable :: ikey
         class(*), allocatable :: idata
         character(:), allocatable :: val
-        integer :: i = 1
+        integer :: i
         i = 1
         allocate(this%header_key(this%header_count))
         iter = fhash_iter_t(this%header_fhash)
