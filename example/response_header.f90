@@ -9,21 +9,25 @@ program response_header
     integer :: i = 0
 
     ! setting request header
-    call req_header%set_header('h1', 'v1')
-    call req_header%set_header('h2', 'v2')
-    call req_header%set_header('h3', 'v3')
+    call req_header%set('h1', 'v1')
+    call req_header%set('h2', 'v2')
+    call req_header%set('h3', 'v3')
+    call req_header%set('h4', 'v4')
 
-    response = request(url='https://jsonplaceholder.typicode.com/todos/1', header=req_header)
+    ! response = request(url='https://gorest.co.in/public/v2/todos/15726', header=req_header)
+    response = request(url='http://localhost:3002/', header=req_header)
     if(.not. response%ok) then
         print *,'Error message : ', response%err_msg
     else
-        print *, '===========Response header value by passing string_type============'
-        headers = response%header_keys()
+        print *, '=========== Response header value by passing string_type ============'
+        ! headers is array of header key
+        headers = response%header%keys()
         do i = 1, size(headers)
-            print *, headers(i), ': ', response%header_value(headers(i))
+            val = response%header%value(headers(i))
+            print *, headers(i), ': ', val
         end do
-        print *, '===========Response header value by passing characters============'
-        val = response%header_value('date')
+        print *, '=========== Response header value by passing characters ============'
+        val = response%header%value('date')
         print *, 'date', ' : ',val
     end if
 end program response_header

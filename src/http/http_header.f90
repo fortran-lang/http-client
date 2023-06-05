@@ -1,23 +1,76 @@
 module http_header
     use iso_c_binding
-    use curl
+    use fhash, only: fhash_tbl_t, key => fhash_key, fhash_iter_t, fhash_key_t
+    use stdlib_string_type
+    ! use curl
     implicit none
     private
     public :: header_type
     type :: header_type
-        type(c_ptr) :: header_list_ptr = c_null_ptr
+        type(fhash_tbl_t), private :: header_fhash
+        type(string_type), private, allocatable :: header_key(:)
         integer :: header_count = 0
     contains
-        procedure :: set_header
+        procedure :: set_header_key
+        procedure :: keys => get_header_keys
+        procedure :: header_string_type_key
+        procedure :: header_char_key
+        generic :: value => header_string_type_key, header_char_key
+        procedure :: set => update_header_fhash
     end type header_type
 contains
-    subroutine set_header(this, h_key, h_val)
+    subroutine update_header_fhash(this, h_key, h_val)
         class(header_type), intent(inout) :: this
         character(*), intent(in) :: h_key, h_val
-        character(:), allocatable :: final_header_string
+        if(len(trim(h_key)) > 0 .and.  len(trim(h_val)) > 0) then
+            call this%header_fhash%set(key(h_key), value=h_val)
+            this%header_count = this%header_count + 1
+        end if
+    end subroutine update_header_fhash
 
-        final_header_string = h_key // ':' // h_val // c_null_char
-        this%header_list_ptr = curl_slist_append(this%header_list_ptr, final_header_string)
-        this%header_count = this%header_count + 1
-    end subroutine set_header
+    subroutine set_header_key(this)
+        class(header_type), intent(inout) :: this
+        type(fhash_iter_t) :: iter
+        class(fhash_key_t), allocatable :: ikey
+        class(*), allocatable :: idata
+        character(:), allocatable :: val
+        integer :: i = 1
+        i = 1
+        allocate(this%header_key(this%header_count))
+        iter = fhash_iter_t(this%header_fhash)
+        do while(iter%next(ikey,idata) .and. i <= this%header_count)
+            this%header_key(i) = string_type(trim(ikey%to_string()))
+            i = i + 1
+        end do
+    end subroutine set_header_key
+
+    function get_header_keys(this) 
+        class(header_type), intent(in) :: this
+        type(string_type), allocatable :: get_header_keys(:)
+        get_header_keys = this%header_key
+    end function get_header_keys
+
+    function header_string_type_key(this, h_key) result(header_value)
+        class(header_type) :: this
+        type(string_type) :: h_key
+        character(:), allocatable :: header_value
+        if(len(h_key) /= 0) then
+            call this%header_fhash%get(key(char(h_key)),header_value)
+        else
+            header_value = ''
+        end if
+    end function header_string_type_key
+
+    function header_char_key(this, h_key) result(header_value)
+        class(header_type) :: this
+        character(*) :: h_key
+        character(:), allocatable :: header_value
+        if(len(h_key) /= 0) then
+            call this%header_fhash%get(key(h_key),header_value)
+        else
+            header_value = ''
+        end if
+    end function header_char_key
+
+
 end module http_header

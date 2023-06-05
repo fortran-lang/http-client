@@ -17,9 +17,9 @@ program test_get
     &"status":"completed"}'
 
     ! setting request header
-    call request_header%set_header('header-1', 'value-1')
-    call request_header%set_header('header-2', 'value-2')
-    call request_header%set_header('header-3', 'value-3')
+    call request_header%set('header-1', 'value-1')
+    call request_header%set('header-2', 'value-2')
+    call request_header%set('header-3', 'value-3')
 
 
     res = request(url='https://gorest.co.in/public/v2/todos/15726', header=request_header)
@@ -48,7 +48,7 @@ program test_get
         msg = msg // 'test case 3, '
     end if
 
-    header_array = res%header_keys()
+    header_array = res%header%keys()
     header_counter = size(header_array)
     if (header_counter /= original_header_count) then
         ok = .false.
