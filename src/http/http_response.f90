@@ -1,7 +1,6 @@
 module http_response
     use, intrinsic :: iso_fortran_env, only: int64
-    use fhash, only: fhash_tbl_t, key => fhash_key
-
+    use http_header, only : header_type
     implicit none
 
     private
@@ -9,11 +8,11 @@ module http_response
 
     ! Response Type
     type :: response_type
-        character(len=:), allocatable :: url, content, method, err_msg, header_string
+        character(len=:), allocatable :: url, content, method, err_msg
         integer :: status_code = 0
         integer(kind=int64) :: content_length = 0
         logical :: ok = .true.
-        type(fhash_tbl_t) :: header
+        type(header_type) :: header
     end type response_type
 
 end module http_response

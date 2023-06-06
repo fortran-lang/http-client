@@ -1,15 +1,14 @@
 program test_get
     use iso_fortran_env, only: stderr => error_unit
-    use fhash, only:  key => fhash_key, fhash_iter_t, fhash_key_t
-    use http, only : response_type, request
+    use stdlib_string_type
+    use http, only : response_type, request, header_type
     implicit none
     type(response_type) :: res
     character(:), allocatable :: msg, original_content
     logical :: ok = .true.
+    type(string_type), allocatable :: header_array(:)
+    type(header_type) :: request_header
 
-    type(fhash_iter_t) :: iter
-    class(fhash_key_t), allocatable :: ikey
-    class(*), allocatable :: idata
     integer :: header_counter = 0, original_header_count = 19
 
     original_content = '{"id":15726,"user_id":2382773,&
@@ -17,7 +16,13 @@ program test_get
     &"due_on":"2023-06-09T00:00:00.000+05:30",&
     &"status":"completed"}'
 
-    res = request(url='https://gorest.co.in/public/v2/todos/15726')
+    ! setting request header
+    call request_header%set('header-1', 'value-1')
+    call request_header%set('header-2', 'value-2')
+    call request_header%set('header-3', 'value-3')
+
+
+    res = request(url='https://gorest.co.in/public/v2/todos/15726', header=request_header)
     
     msg = 'test_get: '
     if (.not. res%ok) then
@@ -43,11 +48,8 @@ program test_get
         msg = msg // 'test case 3, '
     end if
 
-    iter = fhash_iter_t(res%header)
-    do while(iter%next(ikey,idata))
-        header_counter = header_counter + 1
-    end do
-
+    header_array = res%header%keys()
+    header_counter = size(header_array)
     if (header_counter /= original_header_count) then
         ok = .false.
         msg = msg // 'test case 4, '

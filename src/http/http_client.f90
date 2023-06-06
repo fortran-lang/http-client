@@ -1,9 +1,11 @@
 module http_client
     use iso_c_binding
     use curl
+    use stdlib_string_type
     use fhash, only: key => fhash_key
     use http_request, only: request_type
     use http_response, only: response_type
+    use http_header, only : header_type
     
     implicit none
 
@@ -13,10 +15,8 @@ module http_client
     ! http_client Type
     type :: client_type
         type(request_type) :: request
-        type(c_ptr) :: curl_ptr
     contains
         procedure :: client_get_response
-        procedure :: client_set_method
     end type client_type
 
     interface client_type
@@ -29,18 +29,33 @@ module http_client
     
 contains
     ! Constructor for request_type type.
-    function new_request(url, method) result(response)
+    function new_request(url, method, header) result(response)
         character(len=*), intent(in) :: url
         integer, intent(in), optional :: method
+        type(header_type), intent(inout), optional :: header
+        type(header_type) :: default_header
         type(request_type) :: request
         type(response_type) :: response
         type(client_type) :: client
 
+        ! setting default HTTP method
         if(present(method)) then 
            request%method = method
         else
             request%method = 1
         end if
+        
+        ! setting defautl request headers
+        if(present(header)) then 
+            call set_default_headers(header)
+            request%header = header
+        else
+            call set_default_headers(default_header)
+            request%header = default_header
+        end if
+        ! populate the request header_key array
+        call request%header%set_header_key()
+        ! setting request url
         request%url = url
         client = client_type(request=request)
         response = client%client_get_response()
@@ -58,14 +73,21 @@ contains
     function client_get_response(this) result(response)
         class(client_type), intent(inout) :: this
         type(response_type), target :: response
-        integer :: rc
-
+        type(c_ptr) :: curl_ptr,  header_list_ptr
+        integer :: rc, i
+        
+        curl_ptr = c_null_ptr
+        header_list_ptr = c_null_ptr
+        
         ! logic for populating response using fortran-curl
         response%url = this%request%url
+
+        ! prepare headers for curl
+        call prepare_request_header_ptr(header_list_ptr, this%request)
+        
+        curl_ptr = curl_easy_init()
       
-        this%curl_ptr = curl_easy_init()
-      
-        if (.not. c_associated(this%curl_ptr)) then
+        if (.not. c_associated(curl_ptr)) then
             response%ok = .false.
             response%err_msg = "The initialization of a new easy handle using the 'curl_easy_init()'&
             & function failed. This can occur due to insufficient memory available in the system. &
@@ -73,56 +95,86 @@ contains
             return
         end if
         ! setting request URL
-        rc = curl_easy_setopt(this%curl_ptr, CURLOPT_URL, this%request%url // c_null_char)
+        rc = curl_easy_setopt(curl_ptr, CURLOPT_URL, this%request%url // c_null_char)
         ! setting request method
-        rc = this%client_set_method(response)
+        rc = client_set_method(curl_ptr, this%request%method, response)
+        ! setting request header
+        rc = curl_easy_setopt(curl_ptr, CURLOPT_HTTPHEADER, header_list_ptr);
         ! setting callback for writing received data
-        rc = curl_easy_setopt(this%curl_ptr, CURLOPT_WRITEFUNCTION, c_funloc(client_response_callback))
+        rc = curl_easy_setopt(curl_ptr, CURLOPT_WRITEFUNCTION, c_funloc(client_response_callback))
         ! setting response content pointer to write callback
-        rc = curl_easy_setopt(this%curl_ptr, CURLOPT_WRITEDATA, c_loc(response))
+        rc = curl_easy_setopt(curl_ptr, CURLOPT_WRITEDATA, c_loc(response))
         ! setting callback for writing received headers
-        rc = curl_easy_setopt(this%curl_ptr, CURLOPT_HEADERFUNCTION, c_funloc(client_header_callback))
+        rc = curl_easy_setopt(curl_ptr, CURLOPT_HEADERFUNCTION, c_funloc(client_header_callback))
         ! setting response header pointer to write callback
-        rc = curl_easy_setopt(this%curl_ptr, CURLOPT_HEADERDATA, c_loc(response))
+        rc = curl_easy_setopt(curl_ptr, CURLOPT_HEADERDATA, c_loc(response))
         ! Send request.
-        rc = curl_easy_perform(this%curl_ptr)
+        rc = curl_easy_perform(curl_ptr)
         
         if (rc /= CURLE_OK) then
             response%ok = .false.
             response%err_msg = curl_easy_strerror(rc)
         end if
+        
         ! setting response status_code
-        rc = curl_easy_getinfo(this%curl_ptr, CURLINFO_RESPONSE_CODE, response%status_code)  
-        call curl_easy_cleanup(this%curl_ptr)
+        rc = curl_easy_getinfo(curl_ptr, CURLINFO_RESPONSE_CODE, response%status_code)  
+        
+        ! populate the response header_key array
+        call  response%header%set_header_key()
+        
+        call curl_easy_cleanup(curl_ptr)
       
     end function client_get_response
 
-    function client_set_method(this,  response) result(status)
-        class(client_type), intent(inout) :: this
+    subroutine prepare_request_header_ptr(header_list_ptr, request)
+        class(request_type), intent(in) :: request
+        type(c_ptr), intent(out) :: header_list_ptr
+        type(string_type), allocatable :: req_headers(:)
+        character(:), allocatable :: h_key, h_val, final_header_string
+        integer :: i
+
+        req_headers = request%header%keys()
+        do i = 1, size(req_headers)
+            h_key = char(req_headers(i))
+            h_val = request%header%value(req_headers(i))
+
+            final_header_string = h_key // ':' // h_val // c_null_char
+            header_list_ptr = curl_slist_append(header_list_ptr, final_header_string)
+        end do
+    end subroutine prepare_request_header_ptr
+
+    subroutine set_default_headers(header)
+        type(header_type), intent(inout) :: header
+        call header%set('User-Agent', 'fortran-http/1.0.0')
+    end subroutine set_default_headers
+
+    function client_set_method(curl_ptr, method, response) result(status)
+        type(c_ptr), intent(out) :: curl_ptr
+        integer, intent(in) :: method
         type(response_type), intent(out) :: response
         integer :: status
 
-        select case(this%request%method)
+        select case(method)
         case(1)
-            status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'GET' // c_null_char)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_CUSTOMREQUEST, 'GET' // c_null_char)
             response%method = 'GET'
         case(2)
-            status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'HEAD' // c_null_char)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_CUSTOMREQUEST, 'HEAD' // c_null_char)
             response%method = 'HEAD'
         case(3)
-            status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'POST' // c_null_char)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_CUSTOMREQUEST, 'POST' // c_null_char)
             response%method = 'POST'
         case(4)
-            status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'PUT' // c_null_char)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_CUSTOMREQUEST, 'PUT' // c_null_char)
             response%method = 'PUT'
         case(5)
-            status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'DELETE' // c_null_char)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_CUSTOMREQUEST, 'DELETE' // c_null_char)
             response%method = 'DELETE'
         case(6)
-            status = curl_easy_setopt(this%curl_ptr, CURLOPT_CUSTOMREQUEST, 'PATCH' // c_null_char)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_CUSTOMREQUEST, 'PATCH' // c_null_char)
             response%method = 'PATCH'
         case default
-            error stop "Method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH"
+            error stop 'Method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH'
         end select
     end function client_set_method
 
@@ -174,23 +226,21 @@ contains
       
         ! Convert C pointer to Fortran pointer.
         call c_f_pointer(client_data, response)
-        if (.not. allocated(response%header_string)) response%header_string = ''
       
         ! Convert C pointer to Fortran allocatable character.
         call c_f_str_ptr(ptr, buf, nmemb)
         if (.not. allocated(buf)) return
         ! Parsing Header, and storing in hashmap
-        if(len(response%header_string) /= 0 .and. len(buf) > 2) then
-            i = index(buf, ':')
+        i = index(buf, ':')
+        if(i /= 0 .and. len(buf) > 2) then
             h_key = trim(buf(:i-1))
             h_value = buf(i+2 : )
             h_value = h_value( : len(h_value)-2)
             if(len(h_value) > 0 .and. len(h_key) > 0) then
-                call response%header%set(key(h_key), value=h_value)
+                call response%header%set(h_key, h_value)
             end if
         end if
-        response%header_string = response%header_string // buf
-        deallocate (buf)
+        deallocate(buf)
         ! Return number of received bytes.
         client_header_callback = nmemb
 

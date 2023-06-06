@@ -1,26 +1,31 @@
 program response_header
-    use fhash, only: fhash_tbl_t, key => fhash_key, fhash_iter_t, fhash_key_t
-    use http, only: response_type, request
+    use stdlib_string_type, only: string_type, write(formatted)
+    use http, only: response_type, request, header_type
     implicit none
-    
-    type(fhash_iter_t) :: iter
-    class(fhash_key_t), allocatable :: ikey
-    class(*), allocatable :: idata
     type(response_type) :: response
+    type(string_type), allocatable :: header_keys(:)
+    type(header_type) :: req_header
     character(:), allocatable :: val
+    integer :: i = 0
 
-    response = request(url='https://gorest.co.in/public/v2/todos')
+    ! setting request header
+    call req_header%set('h1', 'v1')
+    call req_header%set('h2', 'v2')
+    call req_header%set('h3', 'v3')
+    call req_header%set('h4', 'v4')
+
+    response = request(url='https://gorest.co.in/public/v2/todos/15726', header=req_header)
     if(.not. response%ok) then
-        print *,"Error message : ", response%err_msg
+        print *,'Error message : ', response%err_msg
     else
-        print '(a)', '=================Response Header in string=================='
-        print '(a)',  response%header_string
-        print '(a)', '=================Response Header in hash table=============='
-        iter = fhash_iter_t(response%header)
-        do while(iter%next(ikey,idata))
-            call response%header%get(key(ikey%to_string()),val)
-            print '(a,": ",a)', ikey%to_string(), val
+        print *, '=========== Response header value by passing string_type ============'
+        header_keys = response%header%keys()
+        do i = 1, size(header_keys)
+            val = response%header%value(header_keys(i))
+            print *, header_keys(i), ': ', val
         end do
+        print *, '=========== Response header value by passing characters ============'
+        val = response%header%value('date')
+        print *, 'date', ' : ',val
     end if
-
 end program response_header
