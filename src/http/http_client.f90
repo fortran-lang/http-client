@@ -1,7 +1,7 @@
 module http_client
     use iso_c_binding
     use curl
-    use stdlib_string_type
+    use stdlib_string_type, only: string_type, to_lower, operator(==)
     use http_request, only: request_type
     use http_response, only: response_type
     use http_header, only : header_type
