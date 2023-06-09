@@ -12,7 +12,7 @@ module http_response
         integer :: status_code = 0
         integer(kind=int64) :: content_length = 0
         logical :: ok = .true.
-        type(header_type) :: header
+        type(header_type), allocatable :: header(:)
     end type response_type
 
 end module http_response
