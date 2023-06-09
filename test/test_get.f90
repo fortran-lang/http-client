@@ -1,6 +1,5 @@
 program test_get
     use iso_fortran_env, only: stderr => error_unit
-    use stdlib_string_type
     use http, only : response_type, request, header_type
  
     implicit none
