@@ -1,6 +1,7 @@
 module http_client
     use iso_c_binding
     use curl
+    use stdlib_optval, only: optval
     use stdlib_string_type, only: string_type, to_lower, operator(==)
     use http_request, only: request_type
     use http_response, only: response_type
@@ -37,14 +38,10 @@ contains
         type(response_type) :: response
         type(client_type) :: client
 
-        ! setting default HTTP method
-        if(present(method)) then 
-           request%method = method
-        else
-            request%method = 1
-        end if
+        ! Set default HTTP method.
+        request%method = optval(method, 1)
         
-        ! setting defautl request headers
+        ! Set default request headers.
         if(present(header)) then 
             call set_default_headers(header)
             request%header = header
