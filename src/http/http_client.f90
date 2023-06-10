@@ -32,8 +32,7 @@ contains
     function new_request(url, method, header) result(response)
         character(len=*), intent(in) :: url
         integer, intent(in), optional :: method
-        type(header_type), allocatable, intent(inout), optional :: header(:)
-        type(header_type), allocatable :: default_header(:)
+        type(header_type), intent(in), optional :: header(:)
         type(request_type) :: request
         type(response_type) :: response
         type(client_type) :: client
@@ -42,12 +41,9 @@ contains
         request%method = optval(method, 1)
         
         ! Set default request headers.
+        request%header = [header_type('user-agent', 'fortran-http/1.0.0')]
         if(present(header)) then 
-            call set_default_headers(header)
-            request%header = header
-        else
-            call set_default_headers(default_header)
-            request%header = default_header
+            request%header = [header, request%header]
         end if
 
         ! setting request url
@@ -141,36 +137,6 @@ contains
         end do
     end subroutine prepare_request_header_ptr
 
-    subroutine set_default_headers(header)
-        type(header_type), allocatable, intent(inout) :: header(:)
-        type(header_type), allocatable :: default_header(:)
-        integer :: i, j
-        logical :: found
-
-        ! setting all default header
-        default_header = [header_type('user-agent', 'fortran-http/1.0.0')]
-        
-        do j = 1, size(default_header)
-            found = .false.
-            if(allocated(header)) then
-                
-                ! find if default headers are already set by user or not
-                do i = 1, size(header)
-                    if(to_lower(string_type(header(i)%key)) == default_header(j)%key) then
-                        found = .true.
-                        exit
-                    end if
-                end do   
-                
-                if(.not. found) then
-                    call append_header(header, default_header(j)%key, default_header(j)%value)
-                end if
-            else 
-                call append_header(header, default_header(j)%key, default_header(j)%value)
-            end if
-        end do
-    end subroutine set_default_headers
-
     function client_set_method(curl_ptr, method, response) result(status)
         type(c_ptr), intent(out) :: curl_ptr
         integer, intent(in) :: method
@@ -263,6 +229,7 @@ contains
             h_value = h_value( : len(h_value)-2)
             if(len(h_value) > 0 .and. len(h_key) > 0) then
                 call append_header(response%header, h_key, h_value)
+                ! response%header = [response%header, header_type(h_key, h_value)]
             end if
         end if
         deallocate(buf)
