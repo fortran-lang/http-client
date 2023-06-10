@@ -228,7 +228,7 @@ contains
             h_value = buf(i+2 : )
             h_value = h_value( : len(h_value)-2)
             if(len(h_value) > 0 .and. len(h_key) > 0) then
-                call append_header(response%header, h_key, h_value)
+                call response%append_header(h_key, h_value)
                 ! response%header = [response%header, header_type(h_key, h_value)]
             end if
         end if

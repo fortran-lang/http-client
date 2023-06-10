@@ -13,6 +13,27 @@ module http_response
         integer(kind=int64) :: content_length = 0
         logical :: ok = .true.
         type(header_type), allocatable :: header(:)
+    contains
+        procedure :: append_header
     end type response_type
+
+contains
+    subroutine append_header(this, key, value)
+        class(response_type), intent(inout) :: this
+        character(*), intent(in) :: key, value
+        type(header_type), allocatable :: temp(:)
+        integer :: n
+
+        if (allocated(this%header)) then
+            n = size(this%header)
+            allocate(temp(n+1))
+            temp(1:n) = this%header
+            temp(n+1) = header_type(key, value)
+            deallocate(this%header)
+            this%header = temp
+        else
+            this%header = [header_type(key, value)]
+        end if
+    end subroutine append_header
 
 end module http_response
