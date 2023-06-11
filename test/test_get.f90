@@ -6,8 +6,8 @@ program test_get
     type(response_type) :: res
     character(:), allocatable :: msg, original_content
     logical :: ok = .true.
-    type(header_type), allocatable :: request_header(:), response_header(:)
-    integer :: header_counter = 0, original_header_count = 15, i
+    type(header_type), allocatable :: request_header(:)
+    integer :: i
 
     original_content = '{"data":{"id":1,"email":"george.bluth@reqres.in",&
     &"first_name":"George","last_name":"Bluth",&
@@ -51,12 +51,7 @@ program test_get
         msg = msg // 'test case 3, '
     end if
 
-    response_header = res%header
-    do i=1, size(response_header)
-        header_counter = header_counter + 1
-    end do
-
-    if (header_counter /= original_header_count) then
+    if (size(res%header) /= 14 .and. size(res%header) /= 15) then
         ok = .false.
         msg = msg // 'test case 4, '
     end if

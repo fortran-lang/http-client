@@ -21,6 +21,7 @@ program response_header
         print *,'Error message : ', response%err_msg
     else
        header = response%header
+      !  Iterating over response headers
        do i = 1, size(header)
         print *, header(i)%key, ': ', header(i)%value
        end do
