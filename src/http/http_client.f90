@@ -245,22 +245,4 @@ contains
 
     end function client_header_callback
 
-    subroutine append_header(header, key, value)
-        type(header_type), allocatable, intent(inout) :: header(:)
-        character(*), intent(in) :: key, value
-        type(header_type), allocatable :: temp(:)
-        integer :: n
-
-        if (allocated(header)) then
-            n = size(header)
-            allocate(temp(n+1))
-            temp(1:n) = header
-            temp(n+1) = header_type(key, value)
-            deallocate(header)
-            header = temp
-        else
-            header = [header_type(key, value)]
-        end if
-    end subroutine append_header
-      
 end module http_client
