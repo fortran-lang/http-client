@@ -1,31 +1,31 @@
 program response_header
+    ! This program demonstrates sending user-provided headers in a GET request
+    ! and iterating over the headers of the response sent back by the server.
     use stdlib_string_type, only: string_type, write(formatted)
     use http, only: response_type, request, header_type
+    
     implicit none
     type(response_type) :: response
-    type(string_type), allocatable :: header_keys(:)
-    type(header_type) :: req_header
+    type(header_type), allocatable :: header(:), req_header(:)
     character(:), allocatable :: val
     integer :: i = 0
 
-    ! setting request header
-    call req_header%set('h1', 'v1')
-    call req_header%set('h2', 'v2')
-    call req_header%set('h3', 'v3')
-    call req_header%set('h4', 'v4')
+    req_header = [ &
+      header_type('Another-One', 'Hello'), &
+      header_type('Set-Cookie', 'Theme-Light'), &
+      header_type('Set-Cookie', 'Auth-Token: 12345'), &
+      header_type('User-Agent', 'my user agent') &
+      ]
 
-    response = request(url='https://gorest.co.in/public/v2/todos/15726', header=req_header)
-    if(.not. response%ok) then
+    response = request(url='https://reqres.in/api/users/1', header=req_header)
+
+    if (.not. response%ok) then
         print *,'Error message : ', response%err_msg
     else
-        print *, '=========== Response header value by passing string_type ============'
-        header_keys = response%header%keys()
-        do i = 1, size(header_keys)
-            val = response%header%value(header_keys(i))
-            print *, header_keys(i), ': ', val
+        header = response%header
+        ! Iterate over response headers.
+        do i = 1, size(header)
+            print *, header(i)%key, ': ', header(i)%value
         end do
-        print *, '=========== Response header value by passing characters ============'
-        val = response%header%value('date')
-        print *, 'date', ' : ',val
     end if
 end program response_header

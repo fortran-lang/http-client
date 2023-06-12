@@ -20,5 +20,4 @@ source-form = "free"
 
 [dependencies]
 fortran-curl = {git = "https://github.com/interkosmos/fortran-curl.git"}
-fhash = { git = "https://github.com/LKedward/fhash.git" }
 stdlib = "*"

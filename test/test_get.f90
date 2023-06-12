@@ -1,30 +1,32 @@
 program test_get
     use iso_fortran_env, only: stderr => error_unit
-    use stdlib_string_type
     use http, only : response_type, request, header_type
+ 
     implicit none
     type(response_type) :: res
     character(:), allocatable :: msg, original_content
     logical :: ok = .true.
-    type(string_type), allocatable :: header_array(:)
-    type(header_type) :: request_header
+    type(header_type), allocatable :: request_header(:)
+    integer :: i
 
-    integer :: header_counter = 0, original_header_count = 19
-
-    original_content = '{"id":15726,"user_id":2382773,&
-    &"title":"Somnus ventosus theatrum delinquo spargo.",&
-    &"due_on":"2023-06-09T00:00:00.000+05:30",&
-    &"status":"completed"}'
+    original_content = '{"data":{"id":1,"email":"george.bluth@reqres.in",&
+    &"first_name":"George","last_name":"Bluth",&
+    &"avatar":"https://reqres.in/img/faces/1-image.jpg"},&
+    &"support":{"url":"https://reqres.in/#support-heading",&
+    &"text":"To keep ReqRes free, contributions towards server costs are appreciated!"}}'
 
     ! setting request header
-    call request_header%set('header-1', 'value-1')
-    call request_header%set('header-2', 'value-2')
-    call request_header%set('header-3', 'value-3')
+    request_header = [ &
+      header_type('Another-One', 'Hello'), &
+      header_type('Set-Cookie', 'Theme-Light'), &
+      header_type('Set-Cookie', 'Auth-Token: 12345'), &
+      header_type('User-Agent', 'my user agent') &
+      ]
 
-
-    res = request(url='https://gorest.co.in/public/v2/todos/15726', header=request_header)
+    res = request(url='https://reqres.in/api/users/1', header=request_header)
     
     msg = 'test_get: '
+   
     if (.not. res%ok) then
         ok = .false.
         msg = msg // res%err_msg
@@ -36,11 +38,11 @@ program test_get
         ok = .false.
         msg = msg // 'test case 1, '
     end if
-
-    if (res%content_length /= len(original_content) .or. len(res%content) /= len(original_content)) then
+   
+    if (res%content_length /= len(original_content) .or. &
+        len(res%content) /= len(original_content)) then
         ok = .false.
         msg = msg // 'test case 2, '
-        print *, res%content_length, " ", len(original_content), " ", len(res%content)
     end if
 
     if (res%content /= original_content) then
@@ -48,19 +50,18 @@ program test_get
         msg = msg // 'test case 3, '
     end if
 
-    header_array = res%header%keys()
-    header_counter = size(header_array)
-    if (header_counter /= original_header_count) then
+    if (size(res%header) /= 14 .and. size(res%header) /= 15) then
         ok = .false.
         msg = msg // 'test case 4, '
     end if
+
 
     if (.not. ok) then
         msg = msg // 'Failed.'
         write(stderr, *) msg
         error stop 1
     else
-        msg = msg // 'All Test case Passed.'
+        msg = msg // 'All tests passed.'
         print '(a)', msg 
     end if
 end program test_get
