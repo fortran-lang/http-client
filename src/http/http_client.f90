@@ -1,6 +1,12 @@
 module http_client
-    use iso_c_binding
-    use curl
+    use iso_c_binding, only: c_associated, c_f_pointer, c_funloc, c_loc, &
+        c_null_char, c_null_ptr, c_ptr, c_size_t
+    use curl, only: c_f_str_ptr, curl_easy_cleanup, curl_easy_getinfo, &
+        curl_easy_init, curl_easy_perform, curl_easy_setopt, &
+        curl_easy_strerror, curl_slist_append, CURLE_OK, &
+        CURLINFO_RESPONSE_CODE, CURLOPT_CUSTOMREQUEST, CURLOPT_HEADERDATA, &
+        CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
+        CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION
     use stdlib_optval, only: optval
     use stdlib_string_type, only: string_type, to_lower, operator(==)
     use http_request, only: request_type

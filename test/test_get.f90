@@ -15,7 +15,6 @@ program test_get
     &"support":{"url":"https://reqres.in/#support-heading",&
     &"text":"To keep ReqRes free, contributions towards server costs are appreciated!"}}'
 
-
     ! setting request header
     request_header = [ &
       header_type('Another-One', 'Hello'), &
@@ -62,7 +61,7 @@ program test_get
         write(stderr, *) msg
         error stop 1
     else
-        msg = msg // 'All Test case Passed.'
+        msg = msg // 'All tests passed.'
         print '(a)', msg 
     end if
 end program test_get

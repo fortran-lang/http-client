@@ -1,5 +1,7 @@
 program simple_get
-    use http, only : response_type, request
+    ! This program demonstrates sending a simple GET request and printing the
+    ! status, length of the body, method, and the body of the response.
+    use http, only: response_type, request
     implicit none
     type(response_type) :: response
 

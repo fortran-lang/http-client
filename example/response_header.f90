@@ -1,4 +1,6 @@
 program response_header
+    ! This program demonstrates sending user-provided headers in a GET request
+    ! and iterating over the headers of the response sent back by the server.
     use stdlib_string_type, only: string_type, write(formatted)
     use http, only: response_type, request, header_type
     
@@ -17,13 +19,13 @@ program response_header
 
     response = request(url='https://reqres.in/api/users/1', header=req_header)
 
-    if(.not. response%ok) then
+    if (.not. response%ok) then
         print *,'Error message : ', response%err_msg
     else
-       header = response%header
-      !  Iterating over response headers
-       do i = 1, size(header)
-        print *, header(i)%key, ': ', header(i)%value
-       end do
+        header = response%header
+        ! Iterate over response headers.
+        do i = 1, size(header)
+            print *, header(i)%key, ': ', header(i)%value
+        end do
     end if
 end program response_header
