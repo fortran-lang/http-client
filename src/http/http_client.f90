@@ -8,7 +8,6 @@ module http_client
         CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
         CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION
     use stdlib_optval, only: optval
-    use stdlib_string_type, only: string_type, to_lower, operator(==)
     use http_request, only: request_type
     use http_response, only: response_type
     use http_header, only : header_type

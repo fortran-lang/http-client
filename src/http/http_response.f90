@@ -1,6 +1,8 @@
 module http_response
     use, intrinsic :: iso_fortran_env, only: int64
     use http_header, only : header_type
+    use stdlib_string_type, only: string_type, to_lower, operator(==), char
+
     implicit none
 
     private
@@ -15,6 +17,7 @@ module http_response
         type(header_type), allocatable :: header(:)
     contains
         procedure :: append_header
+        procedure :: get_header_value
     end type response_type
 
 contains
@@ -36,6 +39,29 @@ contains
         end if
     
     end subroutine append_header
+
+    function get_header_value(this, find_key) result(retval)
+        class(response_type), intent(in) :: this
+        character(*), intent(in) :: find_key
+        character(:), allocatable :: retval
+        type(string_type) :: temp, h_key
+        type(header_type), allocatable :: header(:)
+        integer :: i
+        
+        header = this%header
+        temp = string_type(find_key)
+        temp = to_lower(temp)
+        
+        retval = ''
+
+        do i=1, size(header)
+            h_key = string_type(header(i)%key)
+            h_key = to_lower(h_key)
+            if(h_key == temp) then
+                retval = header(i)%value
+            end if
+        end do
+    end function get_header_value
   
 
 end module http_response

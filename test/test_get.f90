@@ -55,6 +55,10 @@ program test_get
         msg = msg // 'test case 4, '
     end if
 
+    if (res%get_header_value('content-type') /= 'application/json; charset=utf-8') then
+        ok = .false.
+        msg = msg // 'test case 5, '
+    end if
 
     if (.not. ok) then
         msg = msg // 'Failed.'
