@@ -31,6 +31,6 @@ program response_header
 
         ! getting header value by header name
         print*, '::::::::::::::::: Fetching individual response header by name :::::::::::::::::'
-        print *, 'Content-Type: ', response%get_header_value('Content-Type')
+        print *, 'Content-Type: ', response%header_value('Content-Type')
     end if
 end program response_header

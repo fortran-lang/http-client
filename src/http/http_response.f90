@@ -17,7 +17,7 @@ module http_response
         type(header_type), allocatable :: header(:)
     contains
         procedure :: append_header
-        procedure :: get_header_value
+        procedure :: header_value
     end type response_type
 
 contains
@@ -40,28 +40,23 @@ contains
     
     end subroutine append_header
 
-    function get_header_value(this, find_key) result(retval)
+    pure function header_value(this, key) result(retval)
         class(response_type), intent(in) :: this
-        character(*), intent(in) :: find_key
+        character(*), intent(in) :: key
         character(:), allocatable :: retval
-        type(string_type) :: temp, h_key
-        type(header_type), allocatable :: header(:)
+        type(string_type) :: string_to_match
         integer :: i
         
-        header = this%header
-        temp = string_type(find_key)
-        temp = to_lower(temp)
+        string_to_match = to_lower(string_type(key))
         
         retval = ''
 
-        do i=1, size(header)
-            h_key = string_type(header(i)%key)
-            h_key = to_lower(h_key)
-            if(h_key == temp) then
-                retval = header(i)%value
+        do i=1, size(this%header)
+            if(to_lower(string_type(this%header(i)%key)) == string_to_match) then
+                retval = this%header(i)%value
+                return
             end if
         end do
-    end function get_header_value
+    end function header_value
   
-
 end module http_response
