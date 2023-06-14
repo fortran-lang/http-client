@@ -22,10 +22,15 @@ program response_header
     if (.not. response%ok) then
         print *,'Error message : ', response%err_msg
     else
+        print*, '::::::::::::::::: Fetching all response header :::::::::::::::::'
         header = response%header
         ! Iterate over response headers.
         do i = 1, size(header)
             print *, header(i)%key, ': ', header(i)%value
         end do
+
+        ! getting header value by header name
+        print*, '::::::::::::::::: Fetching individual response header by name :::::::::::::::::'
+        print *, 'Content-Type: ', response%header_value('Content-Type')
     end if
 end program response_header
