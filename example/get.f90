@@ -1,4 +1,4 @@
-program simple_get
+program get_request
     ! This program demonstrates sending a simple GET request and printing the
     ! status, length of the body, method, and the body of the response.
     use http, only: response_type, request
@@ -15,4 +15,4 @@ program simple_get
         print *, 'Response Content : ', response%content
     end if
 
-end program simple_get
+end program get_request
