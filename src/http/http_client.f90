@@ -41,22 +41,25 @@ contains
         type(request_type) :: request
         type(response_type) :: response
         type(client_type) :: client
+        integer :: i
 
         ! Set default HTTP method.
         request%method = optval(method, 1)
         
-        ! Set default request headers.
-        request%header = [header_type('user-agent', 'fortran-http/1.0.0')]
+        ! Set request header
         if(present(header)) then 
-            request%header = [header, request%header]
+            request%header = header
+            ! Set default request headers.
+            call request%put_if_header_absent('user-agent', 'fortran-http/1.0.0')
+        else
+            request%header = [header_type('user-agent', 'fortran-http/1.0.0')]
         end if
 
-        ! setting request url
+        ! Setting request url
         request%url = url
         
-        client = client_type(request=request)
-        
         ! Populates the response 
+        client = client_type(request=request)
         response = client%client_get_response()
     end function new_request
 
