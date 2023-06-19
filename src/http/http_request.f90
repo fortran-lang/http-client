@@ -1,5 +1,5 @@
 module http_request
-    use http_header, only : header_type, append_header
+    use http_header, only: header_type
     use stdlib_string_type, only: string_type, to_lower, operator(==), char
 
     implicit none

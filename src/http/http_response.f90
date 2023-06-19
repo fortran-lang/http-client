@@ -1,6 +1,6 @@
 module http_response
     use, intrinsic :: iso_fortran_env, only: int64
-    use http_header, only : header_type, get_header_value
+    use http_header, only: header_type, get_header_value
     use stdlib_string_type, only: string_type, to_lower, operator(==), char
 
     implicit none

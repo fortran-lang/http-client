@@ -10,7 +10,7 @@ module http_client
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
-    use http_header, only : header_type, append_header, put_if_header_absent
+    use http_header, only: append_header, header_has_key, header_type
     
     implicit none
 
@@ -47,12 +47,14 @@ contains
         request%method = optval(method, 1)
         
         ! Set request header
-        if(present(header)) then 
+        if (present(header)) then
             request%header = header
             ! Set default request headers.
-            call put_if_header_absent(request%header, 'user-agent', 'fortran-http/1.0.0')
+            if (.not. header_has_key(header, 'user-agent')) then
+              call append_header(request%header, 'user-agent', 'fortran-http/0.1.0')
+            end if
         else
-            request%header = [header_type('user-agent', 'fortran-http/1.0.0')]
+            request%header = [header_type('user-agent', 'fortran-http/0.1.0')]
         end if
 
         ! Setting request url
