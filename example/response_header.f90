@@ -17,11 +17,13 @@ program response_header
       header_type('User-Agent', 'my user agent') &
       ]
 
-    response = request(url='https://reqres.in/api/users/1', header=req_header)
+    response = request(url='https://httpbin.org/get', header=req_header)
 
     if (.not. response%ok) then
         print *,'Error message : ', response%err_msg
     else
+        print*, '::::::::::::::::: Request send by us :::::::::::::::::'
+        print *, response%content
         print*, '::::::::::::::::: Fetching all response header :::::::::::::::::'
         header = response%header
         ! Iterate over response headers.
