@@ -6,7 +6,8 @@ module http_client
         curl_easy_strerror, curl_slist_append, CURLE_OK, &
         CURLINFO_RESPONSE_CODE, CURLOPT_CUSTOMREQUEST, CURLOPT_HEADERDATA, &
         CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
-        CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION
+        CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
+        CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
@@ -34,14 +35,18 @@ module http_client
     
 contains
     ! Constructor for request_type type.
-    function new_request(url, method, header) result(response)
-        character(len=*), intent(in) :: url
+    function new_request(url, method, header, json) result(response)
         integer, intent(in), optional :: method
+        character(len=*), intent(in) :: url
+        character(len=*), intent(in), optional :: json
         type(header_type), intent(in), optional :: header(:)
         type(request_type) :: request
         type(response_type) :: response
         type(client_type) :: client
         integer :: i
+
+        ! setting request url
+        request%url = url
 
         ! Set default HTTP method.
         request%method = optval(method, 1)
@@ -57,8 +62,10 @@ contains
             request%header = [header_type('user-agent', 'fortran-http/0.1.0')]
         end if
 
-        ! Setting request url
-        request%url = url
+        if(present(json)) then
+            request%json = json
+            request%header = [request%header, header_type('Content-Type', 'application/json')]
+        end if
         
         ! Populates the response 
         client = client_type(request=request)
@@ -101,7 +108,10 @@ contains
         rc = curl_easy_setopt(curl_ptr, CURLOPT_URL, this%request%url // c_null_char)
 
         ! setting request method
-        rc = client_set_method(curl_ptr, this%request%method, response)
+        rc = set_method(curl_ptr, this%request%method, response)
+
+        ! setting request body
+        rc = set_body(curl_ptr, this%request%json)
 
         ! setting request header
         rc = curl_easy_setopt(curl_ptr, CURLOPT_HTTPHEADER, header_list_ptr);
@@ -147,7 +157,7 @@ contains
         end do
     end subroutine prepare_request_header_ptr
 
-    function client_set_method(curl_ptr, method, response) result(status)
+    function set_method(curl_ptr, method, response) result(status)
         type(c_ptr), intent(out) :: curl_ptr
         integer, intent(in) :: method
         type(response_type), intent(out) :: response
@@ -175,7 +185,18 @@ contains
         case default
             error stop 'Method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH'
         end select
-    end function client_set_method
+    end function set_method
+
+    function set_body(curl_ptr, json) result(status)
+        type(c_ptr), intent(out) :: curl_ptr
+        character(*), intent(in) :: json
+        integer :: status, json_length
+        json_length = len(json)
+        ! if(json_length > 0) then
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, json)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, json_length)
+        ! end if
+    end function set_body
 
     function client_response_callback(ptr, size, nmemb, client_data) bind(c)
         type(c_ptr), intent(in), value :: ptr 
