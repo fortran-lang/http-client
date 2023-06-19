@@ -1,5 +1,7 @@
 module http_request
-    use http_header, only : header_type
+    use http_header, only: header_type
+    use stdlib_string_type, only: string_type, to_lower, operator(==), char
+
     implicit none
 
     private
@@ -20,5 +22,4 @@ module http_request
         integer :: method
         type(header_type), allocatable :: header(:)
     end type request_type
-
 end module http_request

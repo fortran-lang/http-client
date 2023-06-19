@@ -11,7 +11,7 @@ module http_client
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
-    use http_header, only : header_type
+    use http_header, only: append_header, header_has_key, header_type
     
     implicit none
 
@@ -43,6 +43,7 @@ contains
         type(request_type) :: request
         type(response_type) :: response
         type(client_type) :: client
+        integer :: i
 
         ! setting request url
         request%url = url
@@ -50,20 +51,24 @@ contains
         ! Set default HTTP method.
         request%method = optval(method, 1)
         
-        ! Set default request headers.
-        request%header = [header_type('user-agent', 'fortran-http/1.0.0')]
-        if(present(header)) then 
-            request%header = [header, request%header]
+        ! Set request header
+        if (present(header)) then
+            request%header = header
+            ! Set default request headers.
+            if (.not. header_has_key(header, 'user-agent')) then
+              call append_header(request%header, 'user-agent', 'fortran-http/0.1.0')
+            end if
+        else
+            request%header = [header_type('user-agent', 'fortran-http/0.1.0')]
         end if
-        
+
         if(present(json)) then
             request%json = json
             request%header = [request%header, header_type('Content-Type', 'application/json')]
         end if
         
-        client = client_type(request=request)
-        
         ! Populates the response 
+        client = client_type(request=request)
         response = client%client_get_response()
     end function new_request
 
@@ -254,7 +259,7 @@ contains
             h_value = buf(i+2 : )
             h_value = h_value( : len(h_value)-2)
             if(len(h_value) > 0 .and. len(h_key) > 0) then
-                call response%append_header(h_key, h_value)
+                call append_header(response%header, h_key, h_value)
                 ! response%header = [response%header, header_type(h_key, h_value)]
             end if
         end if
