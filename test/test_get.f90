@@ -44,7 +44,6 @@ program test_get
         print '(a)', 'Failed : Status Code Validation'
         fail_test_case = fail_test_case + 1
     else
-        print '(a)', 'Passed : Status Code Validation'
         passed_test_case = passed_test_case + 1
     end if
    
@@ -55,7 +54,6 @@ program test_get
         print '(a)', 'Failed : Content Length Validation'
         fail_test_case = fail_test_case + 1
     else 
-        print '(a)', 'Passed : Content Length Validation'
         passed_test_case = passed_test_case + 1
     end if
 
@@ -65,7 +63,6 @@ program test_get
         print '(a)', 'Failed : Content Validation'
         fail_test_case = fail_test_case + 1
     else 
-        print '(a)', 'Passed : Content Validation'
         passed_test_case = passed_test_case + 1
     end if
 
@@ -75,7 +72,6 @@ program test_get
         print '(a)', 'Failed : Header Size Validation'
         fail_test_case = fail_test_case + 1
     else 
-        print '(a)', 'Passed : Header Size Validation'
         passed_test_case = passed_test_case + 1
     end if
 
@@ -85,7 +81,6 @@ program test_get
         print '(a)', 'Failed : Header Value Validation'
         fail_test_case = fail_test_case + 1
     else 
-        print '(a)', 'Passed : Header Value Validation'
         passed_test_case = passed_test_case + 1
     end if
 
