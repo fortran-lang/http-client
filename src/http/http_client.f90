@@ -62,6 +62,7 @@ contains
             request%header = [header_type('user-agent', 'fortran-http/0.1.0')]
         end if
 
+        ! setting the request data to be send
         if(present(data)) then
             request%data = data
         end if
@@ -189,12 +190,9 @@ contains
     function set_body(curl_ptr, data) result(status)
         type(c_ptr), intent(out) :: curl_ptr
         character(*), intent(in) :: data
-        integer :: status, data_length
-        data_length = len(data)
-        ! if(json_length > 0) then
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, data)
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, data_length)
-        ! end if
+        integer :: status
+        status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, data)
+        status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data))
     end function set_body
 
     function client_response_callback(ptr, size, nmemb, client_data) bind(c)
