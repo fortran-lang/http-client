@@ -18,7 +18,7 @@ module http_request
 
     ! Request Type
     type :: request_type
-        character(len=:), allocatable :: url, json
+        character(len=:), allocatable :: url, data
         integer :: method
         type(header_type), allocatable :: header(:)
     end type request_type

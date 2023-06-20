@@ -35,10 +35,10 @@ module http_client
     
 contains
     ! Constructor for request_type type.
-    function new_request(url, method, header, json) result(response)
+    function new_request(url, method, header, data) result(response)
         integer, intent(in), optional :: method
         character(len=*), intent(in) :: url
-        character(len=*), intent(in), optional :: json
+        character(len=*), intent(in), optional :: data
         type(header_type), intent(in), optional :: header(:)
         type(request_type) :: request
         type(response_type) :: response
@@ -62,9 +62,8 @@ contains
             request%header = [header_type('user-agent', 'fortran-http/0.1.0')]
         end if
 
-        if(present(json)) then
-            request%json = json
-            request%header = [request%header, header_type('Content-Type', 'application/json')]
+        if(present(data)) then
+            request%data = data
         end if
         
         ! Populates the response 
@@ -111,7 +110,7 @@ contains
         rc = set_method(curl_ptr, this%request%method, response)
 
         ! setting request body
-        rc = set_body(curl_ptr, this%request%json)
+        rc = set_body(curl_ptr, this%request%data)
 
         ! setting request header
         rc = curl_easy_setopt(curl_ptr, CURLOPT_HTTPHEADER, header_list_ptr);
@@ -187,14 +186,14 @@ contains
         end select
     end function set_method
 
-    function set_body(curl_ptr, json) result(status)
+    function set_body(curl_ptr, data) result(status)
         type(c_ptr), intent(out) :: curl_ptr
-        character(*), intent(in) :: json
-        integer :: status, json_length
-        json_length = len(json)
+        character(*), intent(in) :: data
+        integer :: status, data_length
+        data_length = len(data)
         ! if(json_length > 0) then
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, json)
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, json_length)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, data)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, data_length)
         ! end if
     end function set_body
 
