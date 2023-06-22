@@ -1,4 +1,5 @@
 module http_request
+    use http_form , only: form_type
     use http_header, only: header_type
     use stdlib_string_type, only: string_type, to_lower, operator(==), char
 
@@ -18,8 +19,9 @@ module http_request
 
     ! Request Type
     type :: request_type
-        character(len=:), allocatable :: url, data
+        character(len=:), allocatable :: url, data, form_encoded_str
         integer :: method
         type(header_type), allocatable :: header(:)
+        type(form_type), allocatable :: form(:)
     end type request_type
 end module http_request

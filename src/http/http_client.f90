@@ -7,11 +7,12 @@ module http_client
         CURLINFO_RESPONSE_CODE, CURLOPT_CUSTOMREQUEST, CURLOPT_HEADERDATA, &
         CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
         CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
-        CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE
+        CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
     use http_header, only: append_header, header_has_key, header_type
+    use http_form, only: form_type
     
     implicit none
 
@@ -35,11 +36,12 @@ module http_client
     
 contains
     ! Constructor for request_type type.
-    function new_request(url, method, header, data) result(response)
+    function new_request(url, method, header, data, form) result(response)
         integer, intent(in), optional :: method
         character(len=*), intent(in) :: url
         character(len=*), intent(in), optional :: data
         type(header_type), intent(in), optional :: header(:)
+        type(form_type), intent(in), optional :: form(:)
         type(request_type) :: request
         type(response_type) :: response
         type(client_type) :: client
@@ -67,6 +69,11 @@ contains
             request%data = data
         end if
         
+        ! setting request form
+        if(present(form)) then
+            request%form = form
+        end if
+
         ! Populates the response 
         client = client_type(request=request)
         response = client%client_get_response()
@@ -90,9 +97,6 @@ contains
         header_list_ptr = c_null_ptr
         
         response%url = this%request%url
-
-        ! prepare headers for curl
-        call prepare_request_header_ptr(header_list_ptr, this%request%header)
         
         curl_ptr = curl_easy_init()
       
@@ -110,8 +114,14 @@ contains
         ! setting request method
         rc = set_method(curl_ptr, this%request%method, response)
 
+        ! encode the request form
+        call prepare_form_encoded_str(curl_ptr, this%request)
+        
         ! setting request body
-        rc = set_body(curl_ptr, this%request%data)
+        rc = set_body(curl_ptr, this%request%data, this%request%form_encoded_str)
+
+        ! prepare headers for curl
+        call prepare_request_header_ptr(header_list_ptr, this%request%header)
 
         ! setting request header
         rc = curl_easy_setopt(curl_ptr, CURLOPT_HTTPHEADER, header_list_ptr);
@@ -142,6 +152,33 @@ contains
         call curl_easy_cleanup(curl_ptr)
       
     end function client_get_response
+    
+    ! This function converts the request%form data into URL-encoded name-value pairs
+    ! and stores the result in the request%form_encoded_str variable. The resulting 
+    ! string is used in an HTTP request body with the application/x-www-form-urlencoded
+    !  content type to send data as name-value pairs.
+    subroutine prepare_form_encoded_str(curl_ptr, request) 
+        type(c_ptr), intent(out) :: curl_ptr
+        type(request_type), intent(inout) :: request
+        integer :: i
+        if(allocated(request%form)) then
+            do i=1, size(request%form)
+                if(.not. allocated(request%form_encoded_str)) then
+                    request%form_encoded_str = curl_easy_escape(curl_ptr, request%form(i)%name, &
+                    len(request%form(i)%name)) // '=' // curl_easy_escape(curl_ptr, &
+                    request%form(i)%value, len(request%form(i)%value))
+                else
+                    request%form_encoded_str = request%form_encoded_str // '&' // &
+                    curl_easy_escape(curl_ptr, request%form(i)%name, len(request%form(i)%name))&
+                    // '=' // curl_easy_escape(curl_ptr, request%form(i)%value, len(request%form(i)%value))
+                end if
+            end do
+            ! setting the Content-Type header to application/x-www-form-urlencoded, used for sending form data
+            if (.not. header_has_key(request%header, 'Content-Type')) then
+                call append_header(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
+            end if
+        end if
+    end subroutine prepare_form_encoded_str
 
     subroutine prepare_request_header_ptr(header_list_ptr, req_headers)
         type(c_ptr), intent(out) :: header_list_ptr
@@ -187,12 +224,18 @@ contains
         end select
     end function set_method
 
-    function set_body(curl_ptr, data) result(status)
+    function set_body(curl_ptr, data, form_encoded_str) result(status)
         type(c_ptr), intent(out) :: curl_ptr
-        character(*), intent(in) :: data
-        integer :: status
-        status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, data)
-        status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data))
+        character(*), intent(in) :: data, form_encoded_str
+
+        integer :: status, i
+        if(len(data) > 0) then
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, data)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data))
+        else if(len(form_encoded_str) > 0) then
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, form_encoded_str)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(form_encoded_str))    
+        end if
     end function set_body
 
     function client_response_callback(ptr, size, nmemb, client_data) bind(c)
