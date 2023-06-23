@@ -1,4 +1,5 @@
 module http_client
+    use iso_fortran_env, only: int64
     use iso_c_binding, only: c_associated, c_f_pointer, c_funloc, c_loc, &
         c_null_char, c_null_ptr, c_ptr, c_size_t
     use curl, only: c_f_str_ptr, curl_easy_cleanup, curl_easy_getinfo, &
@@ -226,15 +227,15 @@ contains
 
     function set_body(curl_ptr, data, form_encoded_str) result(status)
         type(c_ptr), intent(out) :: curl_ptr
-        character(*), intent(in) :: data, form_encoded_str
+        character(*), intent(in), target :: data, form_encoded_str
 
         integer :: status, i
         if(len(data) > 0) then
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, data)
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data))
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(data))
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data, kind=int64))
         else if(len(form_encoded_str) > 0) then
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, form_encoded_str)
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(form_encoded_str))    
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(form_encoded_str))
+            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(form_encoded_str, kind=int64))    
         end if
     end function set_body
 

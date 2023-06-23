@@ -7,7 +7,7 @@ program post_request
     character(:), allocatable :: json_data
     type(header_type), allocatable :: req_header(:)
 
-    req_header = [header_type('Content-Type', 'applicaiton/json')]
+    req_header = [header_type('Content-Type', 'application/json')]
 
     ! JSON data we want to send
     json_data = '{"name":"Jhon","role":"developer"}'
