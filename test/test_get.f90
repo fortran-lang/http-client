@@ -5,19 +5,16 @@ program test_get
     implicit none
     type(response_type) :: res
     character(:), allocatable :: msg, original_content
-    character(2), allocatable :: number
     logical :: ok = .true.
     type(header_type), allocatable :: request_header(:)
-    integer :: i, passed_test_case, fail_test_case
+    integer :: i
 
-    passed_test_case = 0
-    fail_test_case = 0
-
-    original_content = '{"data":{"id":1,"email":"george.bluth@reqres.in",&
-    &"first_name":"George","last_name":"Bluth",&
-    &"avatar":"https://reqres.in/img/faces/1-image.jpg"},&
-    &"support":{"url":"https://reqres.in/#support-heading",&
-    &"text":"To keep ReqRes free, contributions towards server costs are appreciated!"}}'
+    original_content = '{"id":1,"title":"iPhone 9","description":"An apple mobile which is nothing like &
+    apple","price":549,"discountPercentage":12.96,"rating":4.69,"stock":94,"brand":"Apple","category":&
+    "smartphones","thumbnail":"https://i.dummyjson.com/data/products/1/thumbnail.jpg","images":&
+    ["https://i.dummyjson.com/data/products/1/1.jpg","https://i.dummyjson.com/data/products/1/2.jpg",&
+    "https://i.dummyjson.com/data/products/1/3.jpg","https://i.dummyjson.com/data/products/1/4.jpg",&
+    "https://i.dummyjson.com/data/products/1/thumbnail.jpg"]}'
 
     ! setting request header
     request_header = [ &
@@ -27,7 +24,8 @@ program test_get
       header_type('User-Agent', 'my user agent') &
       ]
 
-    res = request(url='https://reqres.in/api/users/1', header=request_header)
+    ! res = request(url='https://reqres.in/api/users/1', header=request_header)
+    res = request(url='https://dummyjson.com/products/1', header=request_header)
     
     msg = 'test_get: '
    
@@ -42,9 +40,6 @@ program test_get
     if (res%status_code /= 200) then
         ok = .false.
         print '(a)', 'Failed : Status Code Validation'
-        fail_test_case = fail_test_case + 1
-    else
-        passed_test_case = passed_test_case + 1
     end if
    
     ! Content Length Validation
@@ -52,41 +47,29 @@ program test_get
         len(res%content) /= len(original_content)) then
         ok = .false.
         print '(a)', 'Failed : Content Length Validation'
-        fail_test_case = fail_test_case + 1
-    else 
-        passed_test_case = passed_test_case + 1
     end if
 
     ! Content Validation
     if (res%content /= original_content) then
         ok = .false.
         print '(a)', 'Failed : Content Validation'
-        fail_test_case = fail_test_case + 1
-    else 
-        passed_test_case = passed_test_case + 1
     end if
 
     ! Header Size Validation
-    if (size(res%header) /= 14 .and. size(res%header) /= 15) then
+    if (size(res%header) /= 16) then
         ok = .false.
         print '(a)', 'Failed : Header Size Validation'
-        fail_test_case = fail_test_case + 1
-    else 
-        passed_test_case = passed_test_case + 1
     end if
 
     ! Header Value Validation
     if (res%header_value('content-type') /= 'application/json; charset=utf-8') then
         ok = .false.
         print '(a)', 'Failed : Header Value Validation'
-        fail_test_case = fail_test_case + 1
-    else 
-        passed_test_case = passed_test_case + 1
     end if
 
     if (.not. ok) then 
-        write(stderr, '(a i2 a i2 a)'), msg, fail_test_case,'/',fail_test_case+passed_test_case,&
-        & ' Test Case Failed'
+        msg = msg // 'Test Case Failed'
+        write(stderr, '(a)'), msg
         error stop 1
     else
         msg = msg // 'All tests passed.'

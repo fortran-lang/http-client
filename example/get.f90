@@ -5,7 +5,7 @@ program get_request
     implicit none
     type(response_type) :: response
 
-    response = request(url='https://jsonplaceholder.typicode.com/todos/1')
+    response = request(url='https://httpbin.org/get')
     if(.not. response%ok) then
         print *,'Error message : ', response%err_msg
     else
