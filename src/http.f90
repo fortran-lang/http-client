@@ -5,4 +5,5 @@ module http
     use http_client, only: request
     use http_header, only : header_type
     use http_form, only : form_type
+    use http_file, only : file_type
 end module http
