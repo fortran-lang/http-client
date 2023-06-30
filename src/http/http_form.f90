@@ -7,9 +7,9 @@ module http_form
 
     type :: form_type
     !! A derived type representing a single field of an HTTP form.
-        character(:), allocatable :: name, value
-        !! The form_type derived type contains two character allocatable components: name and value. 
-        !! The name component represents the name of the field, while the value component represents 
-        !! the value of the field.
+        character(:), allocatable :: name
+        !! The name of the form field 
+        character(:), allocatable :: value
+        !! The value of the form filed
     end type form_type
 end module http_form

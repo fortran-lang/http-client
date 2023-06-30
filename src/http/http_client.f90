@@ -255,8 +255,8 @@ contains
     end subroutine prepare_request_header_ptr
 
     function set_method(curl_ptr, method, response) result(status)
-        !! This function sets the HTTP method for a curl handle based on the input method integer and returns
-        !! the status of the curl_easy_setopt function call.
+        !! This function sets the HTTP method for a curl handle based on the input method 
+        !! integer and returns the status of the curl_easy_setopt function call.
         type(c_ptr), intent(out) :: curl_ptr
             !! An out argument of type c_ptr that is set to point to a new curl handle.
         integer, intent(in) :: method
