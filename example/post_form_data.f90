@@ -1,18 +1,15 @@
-program post_request
-    ! This program demonstrates sending JSON data using POST request and printing the
+program post_form_data
+    ! This program demonstrates sending Form data using POST request and printing the
     ! status, length of the body, method, and the body of the response.
-    use http, only: response_type, request, HTTP_POST, header_type
+    use http, only: response_type, request, HTTP_POST, header_type, form_type
     implicit none
     type(response_type) :: response
-    character(:), allocatable :: json_data
     type(header_type), allocatable :: req_header(:)
+    type(form_type), allocatable :: form_data(:)
 
-    req_header = [header_type('Content-Type', 'application/json')]
+    form_data = [form_type('param1', 'value1'), form_type('param2', 'value2')]
 
-    ! JSON data we want to send
-    json_data = '{"name":"Jhon","role":"developer"}'
-
-    response = request(url='https://httpbin.org/post', method=HTTP_POST, data=json_data, header=req_header)
+    response = request(url='https://httpbin.org/post', method=HTTP_POST, form=form_data)
    
     if(.not. response%ok) then
         print *,'Error message : ', response%err_msg
@@ -23,4 +20,4 @@ program post_request
         print *, 'Response Content : ', response%content
     end if
 
-end program post_request
+end program post_form_data

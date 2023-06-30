@@ -4,4 +4,5 @@ module http
     use http_response, only: response_type
     use http_client, only: request
     use http_header, only : header_type
+    use http_form, only : form_type
 end module http
