@@ -1,13 +1,15 @@
 program post_form_data
-    ! This program demonstrates sending Form data using POST request and printing the
-    ! status, length of the body, method, and the body of the response.
-    use http, only: response_type, request, HTTP_POST, header_type, form_type
+    ! This program demonstrates sending Form data using POST request and printing 
+    ! the status, length of the body, method, and the body of the response.
+    use http, only: response_type, request, HTTP_POST, pair_type
     implicit none
     type(response_type) :: response
-    type(header_type), allocatable :: req_header(:)
-    type(form_type), allocatable :: form_data(:)
+    type(pair_type), allocatable :: req_header(:)
+    type(pair_type), allocatable :: form_data(:)
 
-    form_data = [form_type('param1', 'value1'), form_type('param2', 'value2')]
+    ! Storing form data in a array of pair_type object, each pair_type object 
+    ! represent a single form field
+    form_data = [pair_type('param1', 'value1'), pair_type('param2', 'value2')]
 
     response = request(url='https://httpbin.org/post', method=HTTP_POST, form=form_data)
    

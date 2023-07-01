@@ -3,8 +3,8 @@ module http_request
     !! This module contains the definition of a request_type derived type, which 
     !! represents an HTTP request.
 
-    use http_form , only: form_type
-    use http_header, only: header_type
+    ! use http_form , only: pair_type
+    use http_pair, only: pair_type
     use stdlib_string_type, only: string_type, to_lower, operator(==), char
 
     implicit none
@@ -32,9 +32,9 @@ module http_request
             !! The URL-encoded form data.
         integer :: method
             !! The HTTP method of the request.
-        type(header_type), allocatable :: header(:)
+        type(pair_type), allocatable :: header(:)
             !! An Array of request headers.
-        type(form_type), allocatable :: form(:)
+        type(pair_type), allocatable :: form(:)
             !! An array of fields in an HTTP form.
     end type request_type
 end module http_request

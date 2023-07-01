@@ -21,8 +21,8 @@ module http_client
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
-    use http_header, only: append_header, header_has_key, header_type
-    use http_form, only: form_type
+    use http_pair, only: append_pair, pair_has_name, pair_type
+    ! use http_form, only: pair_type
     
     implicit none
 
@@ -64,10 +64,10 @@ contains
             !! An character(len=*) argument that specifies the URL of the server.
         character(len=*), intent(in), optional :: data
             !! An optional character(len=*) argument that specifies the data to send in the request body.
-        type(header_type), intent(in), optional :: header(:)
-            !! An optional array of header_type objects that specifies the request headers to send to the server.
-        type(form_type), intent(in), optional :: form(:)
-            !! An optional array of form_type objects that specifies the form data to send in the request body.
+        type(pair_type), intent(in), optional :: header(:)
+            !! An optional array of pair_type objects that specifies the request headers to send to the server.
+        type(pair_type), intent(in), optional :: form(:)
+            !! An optional array of pair_type objects that specifies the form data to send in the request body.
         type(response_type) :: response
             !! A response_type object containing the server's response.
         type(request_type) :: request
@@ -84,11 +84,11 @@ contains
         if (present(header)) then
             request%header = header
             ! Set default request headers.
-            if (.not. header_has_key(header, 'user-agent')) then
-              call append_header(request%header, 'user-agent', 'fortran-http/0.1.0')
+            if (.not. pair_has_name(header, 'user-agent')) then
+              call append_pair(request%header, 'user-agent', 'fortran-http/0.1.0')
             end if
         else
-            request%header = [header_type('user-agent', 'fortran-http/0.1.0')]
+            request%header = [pair_type('user-agent', 'fortran-http/0.1.0')]
         end if
 
         ! setting the request data to be send
@@ -128,7 +128,7 @@ contains
             !! An inout argument of the client_type class that specifies the HTTP request to send.
         type(response_type), target :: response
             !! A response_type object containing the server's response.
-        type(c_ptr) :: curl_ptr,  header_list_ptr
+        type(c_ptr) :: curl_ptr, header_list_ptr
         integer :: rc, i
         
         curl_ptr = c_null_ptr
@@ -147,7 +147,7 @@ contains
         end if
 
         ! setting request URL
-        rc = curl_easy_setopt(curl_ptr, CURLOPT_URL, this%request%url )
+        rc = curl_easy_setopt(curl_ptr, CURLOPT_URL, this%request%url)
 
         ! setting request method
         rc = set_method(curl_ptr, this%request%method, response)
@@ -226,14 +226,14 @@ contains
                 end if
             end do
             ! setting the Content-Type header to application/x-www-form-urlencoded, used for sending form data
-            if (.not. header_has_key(request%header, 'Content-Type')) then
-                call append_header(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
+            if (.not. pair_has_name(request%header, 'Content-Type')) then
+                call append_pair(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
             end if
         end if
     end subroutine prepare_form_encoded_str
 
     ! This subroutine prepares a linked list of headers for an HTTP request using the libcurl library. 
-    ! The function takes an array of header_type objects that contain the key-value pairs of the headers 
+    ! The function takes an array of pair_type objects that contain the key-value pairs of the headers 
     ! to include in the request. The subroutine iterates over the array and constructs a string for each 
     ! header in the format "key:value". The subroutine then appends each string to the linked list using 
     ! the curl_slist_append function. The resulting linked list is returned via the header_list_ptr argument.
@@ -241,15 +241,15 @@ contains
         !! This subroutine prepares a linked list of headers for an HTTP request using the libcurl library.
         type(c_ptr), intent(out) :: header_list_ptr
             !! An out argument of type c_ptr that is allocated and set to point to a linked list of headers.
-        type(header_type), allocatable, intent(in) :: req_headers(:)
-            !! An in argument of type header_type array that specifies the headers to include in the request.
-        character(:), allocatable :: h_key, h_val, final_header_string
+        type(pair_type), allocatable, intent(in) :: req_headers(:)
+            !! An in argument of type pair_type array that specifies the headers to include in the request.
+        character(:), allocatable :: h_name, h_val, final_header_string
         integer :: i
 
         do i = 1, size(req_headers)
-            h_key = req_headers(i)%key
+            h_name = req_headers(i)%name
             h_val = req_headers(i)%value
-            final_header_string = h_key // ':' // h_val 
+            final_header_string = h_name // ':' // h_val 
             header_list_ptr = curl_slist_append(header_list_ptr, final_header_string)
         end do
     end subroutine prepare_request_header_ptr
@@ -368,7 +368,7 @@ contains
     function client_header_callback(ptr, size, nmemb, client_data) bind(c)
         !! This function is a callback function used by the libcurl library to handle HTTP headers. 
         !! It is called for each header received from the server and stores the header in an array of 
-        !! header_type objects in a response_type object.
+        !! pair_type objects in a response_type object.
         type(c_ptr), intent(in), value :: ptr 
             !! An in argument of type c_ptr that points to the received header buffer.
         integer(kind=c_size_t), intent(in), value :: size 
@@ -380,7 +380,7 @@ contains
         integer(kind=c_size_t) :: client_header_callback 
             !! An integer(kind=c_size_t) value representing the number of bytes received.
         type(response_type), pointer :: response 
-        character(len=:), allocatable :: buf, h_key, h_value
+        character(len=:), allocatable :: buf, h_name, h_value
         integer :: i
       
         client_header_callback = int(0, kind=c_size_t)
@@ -396,15 +396,15 @@ contains
         call c_f_str_ptr(ptr, buf, nmemb)
         if (.not. allocated(buf)) return
         
-        ! Parsing Header, and storing in array of header_type object
+        ! Parsing Header, and storing in array of pair_type object
         i = index(buf, ':')
         if(i /= 0 .and. len(buf) > 2) then
-            h_key = trim(buf(:i-1))
+            h_name = trim(buf(:i-1))
             h_value = buf(i+2 : )
             h_value = h_value( : len(h_value)-2)
-            if(len(h_value) > 0 .and. len(h_key) > 0) then
-                call append_header(response%header, h_key, h_value)
-                ! response%header = [response%header, header_type(h_key, h_value)]
+            if(len(h_value) > 0 .and. len(h_name) > 0) then
+                call append_pair(response%header, h_name, h_value)
+                ! response%header = [response%header, pair_type(h_name, h_value)]
             end if
         end if
         deallocate(buf)

@@ -1,12 +1,12 @@
 program test_get
     use iso_fortran_env, only: stderr => error_unit
-    use http, only : response_type, request, header_type
+    use http, only : response_type, request, pair_type
  
     implicit none
     type(response_type) :: res
     character(:), allocatable :: msg, original_content
     logical :: ok = .true.
-    type(header_type), allocatable :: request_header(:)
+    type(pair_type), allocatable :: request_header(:)
     integer :: i
 
     original_content = '{"id":1,"title":"iPhone 9","description":"An apple mobile which is nothing like &
@@ -18,10 +18,10 @@ program test_get
 
     ! setting request header
     request_header = [ &
-      header_type('Another-One', 'Hello'), &
-      header_type('Set-Cookie', 'Theme-Light'), &
-      header_type('Set-Cookie', 'Auth-Token: 12345'), &
-      header_type('User-Agent', 'my user agent') &
+      pair_type('Another-One', 'Hello'), &
+      pair_type('Set-Cookie', 'Theme-Light'), &
+      pair_type('Set-Cookie', 'Auth-Token: 12345'), &
+      pair_type('User-Agent', 'my user agent') &
       ]
 
     ! res = request(url='https://reqres.in/api/users/1', header=request_header)
