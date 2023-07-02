@@ -19,7 +19,7 @@ module http_client
     CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
     CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape, &
     curl_mime_init, curl_mime_addpart, curl_mime_filedata,curl_mime_name, &
-    CURLOPT_MIMEPOST,curl_mime_data
+    CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
@@ -160,12 +160,8 @@ contains
         ! setting request method
         rc = set_method(curl_ptr, this%request%method, response)
 
-        ! encode the request form
-        call prepare_form_encoded_str(curl_ptr, this%request)
-        
         ! setting request body
-        rc = set_body(curl_ptr, this%request%header, this%request%data, &
-        this%request%form_encoded_str, this%request%form, this%request%file)
+        rc = set_body(curl_ptr, this%request)
 
         ! prepare headers for curl
         call prepare_request_header_ptr(header_list_ptr, this%request%header)
@@ -207,7 +203,7 @@ contains
     ! The encoded name-value pairs are concatenated into a single string, separated 
     ! by '&' characters. The resulting string is stored in the form_encoded_str field
     ! of the request object.
-    subroutine prepare_form_encoded_str(curl_ptr, request) 
+    function prepare_form_encoded_str(curl_ptr, request) result(form_encoded_str)
         !! This subroutine converts the request%form data into URL-encoded name-value pairs
         !! and stores the result in the request%form_encoded_str variable. The resulting
         !! string is used as the HTTP request body with the application/x-www-form-urlencoded
@@ -218,21 +214,22 @@ contains
         type(request_type), intent(inout) :: request
             !! An inout argument of the request_type type, which contains the form data to be
             !! encoded and the form_encoded_str variable to store the result.
+        character(:), allocatable :: form_encoded_str
         integer :: i
         if(allocated(request%form)) then
             do i=1, size(request%form)
-                if(.not. allocated(request%form_encoded_str)) then
-                    request%form_encoded_str = curl_easy_escape(curl_ptr, request%form(i)%name, &
+                if(.not. allocated(form_encoded_str)) then
+                    form_encoded_str = curl_easy_escape(curl_ptr, request%form(i)%name, &
                     len(request%form(i)%name)) // '=' // curl_easy_escape(curl_ptr, &
                     request%form(i)%value, len(request%form(i)%value))
                 else
-                    request%form_encoded_str = request%form_encoded_str // '&' // &
+                    form_encoded_str = form_encoded_str // '&' // &
                     curl_easy_escape(curl_ptr, request%form(i)%name, len(request%form(i)%name))&
                     // '=' // curl_easy_escape(curl_ptr, request%form(i)%value, len(request%form(i)%value))
                 end if
             end do
         end if
-    end subroutine prepare_form_encoded_str
+    end function prepare_form_encoded_str
 
     ! This subroutine prepares a linked list of headers for an HTTP request using the libcurl library. 
     ! The function takes an array of pair_type objects that contain the key-value pairs of the headers 
@@ -308,60 +305,71 @@ contains
     ! form + file -> form + file (in multipart/form-data)
     ! 
     ! Note : At a time only one file can be send
-    function set_body(curl_ptr, header, data, form_encoded_str, form, file) result(status)
-        !! The set_body function sets the request body for a curl handle based on the input data and 
-        !! form_encoded_str strings and returns the status of the curl_easy_setopt function call.
+    function set_body(curl_ptr, request) result(status)
+        !! The set_body function sets the request body.
         type(c_ptr), intent(out) :: curl_ptr
             !! An out argument of type c_ptr that is set to point to a new curl handle.
-        character(*), intent(in), target :: data
-            !! An in argument of type character(*) that specifies the request body data.
-        character(*), intent(in), target :: form_encoded_str
-            !! An in argument of type character(*) that specifies the request body data in URL encoded form.
-        type(pair_type), allocatable, intent(inout) :: header(:)
-            !! An allocatable array of header_type objects that specifies the request headers to send to the server.
-        type(pair_type), allocatable, intent(in) :: form(:)
-            !! An allocatable array of form_type objects that specifies the form data to send in the request body.
-        type(pair_type), intent(in) :: file
-            !! An in argument of type pair_type that specifies the file data to send in the request body.
+        type(request_type), intent(inout) :: request
+            !! The HTTP request
         integer :: status
             !! An integer value representing the status of the curl_easy_setopt function call.
+        
         integer :: i
-        integer(kind=8) :: CURL_ZERO_TERMINATED = -1
+        character(len=:), allocatable :: form_encoded_str
         type(c_ptr) :: mime_ptr, part_ptr
 
         ! if only data is passed
-        if(len(data) > 0) then
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(data))
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data, kind=int64))
+        if(len(request%data) > 0) then
+            status = set_postfields(curl_ptr, request%data)
+        
         ! if file is passsed
-        else if(len(file%name) > 0) then
+        else if(len(request%file%name) > 0) then
             mime_ptr = curl_mime_init(curl_ptr)
             part_ptr = curl_mime_addpart(mime_ptr)
-            status = curl_mime_filedata(part_ptr, file%value)
-            status = curl_mime_name(part_ptr, file%name)
+            status = curl_mime_filedata(part_ptr, request%file%value)
+            status = curl_mime_name(part_ptr, request%file%name)
+            
             ! if both file and form are passed
-            if(len(form_encoded_str) > 0) then
-                do i=1, size(form)
+            if(allocated(request%form)) then 
+                do i=1, size(request%form)
                     part_ptr = curl_mime_addpart(mime_ptr)
-                    status = curl_mime_data(part_ptr, form(i)%value, CURL_ZERO_TERMINATED)
-                    status = curl_mime_name(part_ptr, form(i)%name)
+                    status = curl_mime_data(part_ptr, request%form(i)%value, CURL_ZERO_TERMINATED)
+                    status = curl_mime_name(part_ptr, request%form(i)%name)
                 end do
             end if
             status = curl_easy_setopt(curl_ptr, CURLOPT_MIMEPOST, mime_ptr)
+            
             ! setting the Content-Type header to multipart/form-data, used for sending  binary data
-            if (.not. pair_has_name(header, 'Content-Type')) then
-                call append_pair(header, 'Content-Type', 'multipart/form-data')
+            if (.not. pair_has_name(request%header, 'Content-Type')) then
+                call append_pair(request%header, 'Content-Type', 'multipart/form-data')
             end if
+        
         ! if only form is passed
-        else if(len(form_encoded_str) > 0) then
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(form_encoded_str))
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(form_encoded_str, kind=int64))    
+        else if(allocated(request%form)) then
+            request%form_encoded_str = prepare_form_encoded_str(curl_ptr, request)
+            status = set_postfields(curl_ptr, request%form_encoded_str)
+           
             ! setting the Content-Type header to application/x-www-form-urlencoded, used for sending form data
-            if (.not. pair_has_name(header, 'Content-Type')) then
-                call append_pair(header, 'Content-Type', 'application/x-www-form-urlencoded')
+            if (.not. pair_has_name(request%header, 'Content-Type')) then
+                call append_pair(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
             end if
         end if
+        
     end function set_body
+
+    function set_postfields(curl_ptr, data) result(status)
+        !! Set the data to be sent in the HTTP POST request body.
+        type(c_ptr), intent(inout) :: curl_ptr
+            !! Pointer to the CURL handle.
+        character(*), intent(in), target :: data
+            !! The data to be sent in the request body.
+        integer :: status
+            !! An integer indicating whether the operation was successful (0) or not (non-zero).
+
+        status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(data))
+        status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data, kind=int64))
+
+    end function set_postfields
 
     ! This function is a callback function used by the libcurl library to handle HTTP responses. It is 
     ! called for each chunk of data received from the server and appends the data to a response_type object. 
