@@ -10,19 +10,20 @@ module http_client
 
     use iso_fortran_env, only: int64
     use iso_c_binding, only: c_associated, c_f_pointer, c_funloc, c_loc, &
-        c_null_ptr, c_ptr, c_size_t
+        c_null_ptr, c_ptr, c_size_t, c_null_char
     use curl, only: c_f_str_ptr, curl_easy_cleanup, curl_easy_getinfo, &
-        curl_easy_init, curl_easy_perform, curl_easy_setopt, &
-        curl_easy_strerror, curl_slist_append, CURLE_OK, &
-        CURLINFO_RESPONSE_CODE, CURLOPT_CUSTOMREQUEST, CURLOPT_HEADERDATA, &
-        CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
-        CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
-        CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape
+    curl_easy_init, curl_easy_perform, curl_easy_setopt, &
+    curl_easy_strerror, curl_slist_append, CURLE_OK, &
+    CURLINFO_RESPONSE_CODE, CURLOPT_CUSTOMREQUEST, CURLOPT_HEADERDATA, &
+    CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
+    CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
+    CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape, &
+    curl_mime_init, curl_mime_addpart, curl_mime_filedata,curl_mime_name, &
+    CURLOPT_MIMEPOST,curl_mime_data
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
     use http_pair, only: append_pair, pair_has_name, pair_type
-    ! use http_form, only: pair_type
     
     implicit none
 
@@ -52,7 +53,7 @@ contains
     ! new client_type object using the request object as a parameter and sends the request to the server
     ! using the client_get_response method. The function returns the response_type object containing the
     ! server's response.
-    function new_request(url, method, header, data, form) result(response)
+    function new_request(url, method, header, data, form, file) result(response)
         !! This function creates a new HTTP request object of the request_type type and sends 
         !! the request to the server using the client_type object. The function takes the URL, 
         !! HTTP method, request headers, request data, and form data as input arguments and returns 
@@ -68,6 +69,8 @@ contains
             !! An optional array of pair_type objects that specifies the request headers to send to the server.
         type(pair_type), intent(in), optional :: form(:)
             !! An optional array of pair_type objects that specifies the form data to send in the request body.
+        type(pair_type), intent(in), optional :: file
+            !! An optional pair_type object that specifies the file data to send in the request body.
         type(response_type) :: response
             !! A response_type object containing the server's response.
         type(request_type) :: request
@@ -99,6 +102,11 @@ contains
         ! setting request form
         if(present(form)) then
             request%form = form
+        end if
+
+        ! setting request file
+        if(present(file)) then
+            request%file = file
         end if
 
         ! Populates the response 
@@ -156,7 +164,8 @@ contains
         call prepare_form_encoded_str(curl_ptr, this%request)
         
         ! setting request body
-        rc = set_body(curl_ptr, this%request%data, this%request%form_encoded_str)
+        rc = set_body(curl_ptr, this%request%header, this%request%data, &
+        this%request%form_encoded_str, this%request%form, this%request%file)
 
         ! prepare headers for curl
         call prepare_request_header_ptr(header_list_ptr, this%request%header)
@@ -198,9 +207,6 @@ contains
     ! The encoded name-value pairs are concatenated into a single string, separated 
     ! by '&' characters. The resulting string is stored in the form_encoded_str field
     ! of the request object.
-    ! Finally, the subroutine checks if the Content-Type header is already set in the 
-    ! request object. If not, it sets the header to application/x-www-form-urlencoded,
-    ! indicating that the HTTP request body contains URL-encoded form data.
     subroutine prepare_form_encoded_str(curl_ptr, request) 
         !! This subroutine converts the request%form data into URL-encoded name-value pairs
         !! and stores the result in the request%form_encoded_str variable. The resulting
@@ -225,10 +231,6 @@ contains
                     // '=' // curl_easy_escape(curl_ptr, request%form(i)%value, len(request%form(i)%value))
                 end if
             end do
-            ! setting the Content-Type header to application/x-www-form-urlencoded, used for sending form data
-            if (.not. pair_has_name(request%header, 'Content-Type')) then
-                call append_pair(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
-            end if
         end if
     end subroutine prepare_form_encoded_str
 
@@ -290,31 +292,74 @@ contains
         end select
     end function set_method
 
-    ! This function sets the request body for a curl handle based on the input data and form_encoded_str 
-    ! strings and returns the status of the curl_easy_setopt function call. The function takes two input 
-    ! arguments, data and form_encoded_str, which represent the request body data as a raw string or in 
-    ! URL encoded form, respectively. The function then uses an if statement to set the request body using 
-    ! the curl_easy_setopt function call and the CURLOPT_POSTFIELDS and CURLOPT_POSTFIELDSIZE_LARGE options. 
-    ! The function returns an integer value representing the status of the curl_easy_setopt function call.
-    function set_body(curl_ptr, data, form_encoded_str) result(status)
-        !! This function sets the request body for a curl handle based on the input data and form_encoded_str
-        !! strings and returns the status of the curl_easy_setopt function call.
+    ! The set_body function determines the type of data to include in the request body 
+    ! based on the inputs provided. If data is provided, it is sent as the body of the 
+    ! request. If form is provided without a file, the form data is URL encoded and sent 
+    ! as the body of the request. If file is provided without form, the file is sent 
+    ! using a multipart/form-data header. If both form and file are provided, the file 
+    ! takes priority and the form data along with file is sent as part of the multipart/form-data 
+    ! body. If data, form, and file are all provided, only data is sent and the form and file 
+    ! inputs are ignored.
+    ! 
+    ! data -> data
+    ! form -> form
+    ! file -> file
+    ! data + form + file -> data
+    ! form + file -> form + file (in multipart/form-data)
+    ! 
+    ! Note : At a time only one file can be send
+    function set_body(curl_ptr, header, data, form_encoded_str, form, file) result(status)
+        !! The set_body function sets the request body for a curl handle based on the input data and 
+        !! form_encoded_str strings and returns the status of the curl_easy_setopt function call.
         type(c_ptr), intent(out) :: curl_ptr
             !! An out argument of type c_ptr that is set to point to a new curl handle.
         character(*), intent(in), target :: data
             !! An in argument of type character(*) that specifies the request body data.
         character(*), intent(in), target :: form_encoded_str
             !! An in argument of type character(*) that specifies the request body data in URL encoded form.
+        type(pair_type), allocatable, intent(inout) :: header(:)
+            !! An allocatable array of header_type objects that specifies the request headers to send to the server.
+        type(pair_type), allocatable, intent(in) :: form(:)
+            !! An allocatable array of form_type objects that specifies the form data to send in the request body.
+        type(pair_type), intent(in) :: file
+            !! An in argument of type pair_type that specifies the file data to send in the request body.
         integer :: status
             !! An integer value representing the status of the curl_easy_setopt function call.
         integer :: i
+        integer(kind=8) :: CURL_ZERO_TERMINATED = -1
+        type(c_ptr) :: mime_ptr, part_ptr
 
+        ! if only data is passed
         if(len(data) > 0) then
             status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(data))
             status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data, kind=int64))
+        ! if file is passsed
+        else if(len(file%name) > 0) then
+            mime_ptr = curl_mime_init(curl_ptr)
+            part_ptr = curl_mime_addpart(mime_ptr)
+            status = curl_mime_filedata(part_ptr, file%value)
+            status = curl_mime_name(part_ptr, file%name)
+            ! if both file and form are passed
+            if(len(form_encoded_str) > 0) then
+                do i=1, size(form)
+                    part_ptr = curl_mime_addpart(mime_ptr)
+                    status = curl_mime_data(part_ptr, form(i)%value, CURL_ZERO_TERMINATED)
+                    status = curl_mime_name(part_ptr, form(i)%name)
+                end do
+            end if
+            status = curl_easy_setopt(curl_ptr, CURLOPT_MIMEPOST, mime_ptr)
+            ! setting the Content-Type header to multipart/form-data, used for sending  binary data
+            if (.not. pair_has_name(header, 'Content-Type')) then
+                call append_pair(header, 'Content-Type', 'multipart/form-data')
+            end if
+        ! if only form is passed
         else if(len(form_encoded_str) > 0) then
             status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(form_encoded_str))
             status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(form_encoded_str, kind=int64))    
+            ! setting the Content-Type header to application/x-www-form-urlencoded, used for sending form data
+            if (.not. pair_has_name(header, 'Content-Type')) then
+                call append_pair(header, 'Content-Type', 'application/x-www-form-urlencoded')
+            end if
         end if
     end function set_body
 

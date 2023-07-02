@@ -36,5 +36,7 @@ module http_request
             !! An Array of request headers.
         type(pair_type), allocatable :: form(:)
             !! An array of fields in an HTTP form.
+        type(pair_type) :: file
+            !! Used to store information about files to be sent in HTTP requests.
     end type request_type
 end module http_request
