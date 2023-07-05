@@ -12,14 +12,14 @@ module http_client
     use iso_c_binding, only: c_associated, c_f_pointer, c_funloc, c_loc, &
         c_null_ptr, c_ptr, c_size_t, c_null_char
     use curl, only: c_f_str_ptr, curl_easy_cleanup, curl_easy_getinfo, &
-    curl_easy_init, curl_easy_perform, curl_easy_setopt, &
-    curl_easy_strerror, curl_slist_append, CURLE_OK, &
-    CURLINFO_RESPONSE_CODE, CURLOPT_CUSTOMREQUEST, CURLOPT_HEADERDATA, &
-    CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
-    CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
-    CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape, &
-    curl_mime_init, curl_mime_addpart, curl_mime_filedata,curl_mime_name, &
-    CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED
+        curl_easy_init, curl_easy_perform, curl_easy_setopt, &
+        curl_easy_strerror, curl_slist_append, CURLE_OK, &
+        CURLINFO_RESPONSE_CODE, CURLOPT_CUSTOMREQUEST, CURLOPT_HEADERDATA, &
+        CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
+        CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
+        CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape, &
+        curl_mime_init, curl_mime_addpart, curl_mime_filedata,curl_mime_name, &
+        CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
