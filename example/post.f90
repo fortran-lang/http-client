@@ -1,13 +1,14 @@
 program post_request
     ! This program demonstrates sending JSON data using POST request and printing the
     ! status, length of the body, method, and the body of the response.
-    use http, only: response_type, request, HTTP_POST, header_type
+    use http, only: response_type, request, HTTP_POST, pair_type
     implicit none
     type(response_type) :: response
     character(:), allocatable :: json_data
-    type(header_type), allocatable :: req_header(:)
+    type(pair_type), allocatable :: req_header(:)
 
-    req_header = [header_type('Content-Type', 'application/json')]
+    ! Storing request header in array of pair_type object
+    req_header = [pair_type('Content-Type', 'application/json')]
 
     ! JSON data we want to send
     json_data = '{"name":"Jhon","role":"developer"}'

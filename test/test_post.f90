@@ -1,14 +1,14 @@
 program test_post
     use iso_fortran_env, only: stderr => error_unit
-    use http, only: request, header_type, HTTP_POST, response_type
+    use http, only: request, pair_type, HTTP_POST, response_type
     implicit none
     type(response_type) :: res
     character(:), allocatable :: json_data, original_content, msg
-    type(header_type), allocatable :: req_header(:)
+    type(pair_type), allocatable :: req_header(:)
     logical :: ok = .true.
 
     original_content = '{"id":101,"title":"BMW","description":"A luxurious and high-performance vehicle"}'
-    req_header = [header_type('Content-Type', 'application/json')]
+    req_header = [pair_type('Content-Type', 'application/json')]
 
     json_data = '{"title":"BMW","description":"A luxurious and high-performance vehicle"}'
 

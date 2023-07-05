@@ -4,7 +4,7 @@ module http_response
     !! represents an HTTP response.
 
     use, intrinsic :: iso_fortran_env, only: int64
-    use http_header, only: header_type, get_header_value
+    use http_pair, only: pair_type, get_pair_value
     use stdlib_string_type, only: string_type, to_lower, operator(==), char
 
     implicit none
@@ -29,25 +29,25 @@ module http_response
             !! length of the response content.
         logical :: ok = .true.
             !! true if the response was successful else false.
-        type(header_type), allocatable :: header(:)
+        type(pair_type), allocatable :: header(:)
             !! An Array of response headers.
     contains
         procedure :: header_value
     end type response_type
 
 contains
-    pure function header_value(this, key) result(val)
-        !! The header_value function takes a key string as input and returns 
+    pure function header_value(this, name) result(val)
+        !! The header_value function takes a header name string as input and returns 
         !! the corresponding value as a string from a response_type object's 
         !! header array.
         class(response_type), intent(in) :: this
             !! An object representing the HTTP response.
-        character(*), intent(in) :: key
-            !! The key of the header value to be retrieved.
+        character(*), intent(in) :: name
+            !! The name of the header value to be retrieved.
         character(:), allocatable :: val
-            !! The value of the specified key in the HTTP response header.
+            !! The value of the specified name in the HTTP response header.
         
-        val = get_header_value(this%header, key)
+        val = get_pair_value(this%header, name)
     end function header_value
     
 end module http_response

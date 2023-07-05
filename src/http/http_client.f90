@@ -10,19 +10,20 @@ module http_client
 
     use iso_fortran_env, only: int64
     use iso_c_binding, only: c_associated, c_f_pointer, c_funloc, c_loc, &
-        c_null_ptr, c_ptr, c_size_t
+        c_null_ptr, c_ptr, c_size_t, c_null_char
     use curl, only: c_f_str_ptr, curl_easy_cleanup, curl_easy_getinfo, &
         curl_easy_init, curl_easy_perform, curl_easy_setopt, &
         curl_easy_strerror, curl_slist_append, CURLE_OK, &
         CURLINFO_RESPONSE_CODE, CURLOPT_CUSTOMREQUEST, CURLOPT_HEADERDATA, &
         CURLOPT_HEADERFUNCTION, CURLOPT_HTTPHEADER, CURLOPT_URL, &
         CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
-        CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape
+        CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape, &
+        curl_mime_init, curl_mime_addpart, curl_mime_filedata,curl_mime_name, &
+        CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
-    use http_header, only: append_header, header_has_key, header_type
-    use http_form, only: form_type
+    use http_pair, only: append_pair, pair_has_name, pair_type
     
     implicit none
 
@@ -52,7 +53,7 @@ contains
     ! new client_type object using the request object as a parameter and sends the request to the server
     ! using the client_get_response method. The function returns the response_type object containing the
     ! server's response.
-    function new_request(url, method, header, data, form) result(response)
+    function new_request(url, method, header, data, form, file) result(response)
         !! This function creates a new HTTP request object of the request_type type and sends 
         !! the request to the server using the client_type object. The function takes the URL, 
         !! HTTP method, request headers, request data, and form data as input arguments and returns 
@@ -64,10 +65,12 @@ contains
             !! An character(len=*) argument that specifies the URL of the server.
         character(len=*), intent(in), optional :: data
             !! An optional character(len=*) argument that specifies the data to send in the request body.
-        type(header_type), intent(in), optional :: header(:)
-            !! An optional array of header_type objects that specifies the request headers to send to the server.
-        type(form_type), intent(in), optional :: form(:)
-            !! An optional array of form_type objects that specifies the form data to send in the request body.
+        type(pair_type), intent(in), optional :: header(:)
+            !! An optional array of pair_type objects that specifies the request headers to send to the server.
+        type(pair_type), intent(in), optional :: form(:)
+            !! An optional array of pair_type objects that specifies the form data to send in the request body.
+        type(pair_type), intent(in), optional :: file
+            !! An optional pair_type object that specifies the file data to send in the request body.
         type(response_type) :: response
             !! A response_type object containing the server's response.
         type(request_type) :: request
@@ -84,11 +87,11 @@ contains
         if (present(header)) then
             request%header = header
             ! Set default request headers.
-            if (.not. header_has_key(header, 'user-agent')) then
-              call append_header(request%header, 'user-agent', 'fortran-http/0.1.0')
+            if (.not. pair_has_name(header, 'user-agent')) then
+              call append_pair(request%header, 'user-agent', 'fortran-http/0.1.0')
             end if
         else
-            request%header = [header_type('user-agent', 'fortran-http/0.1.0')]
+            request%header = [pair_type('user-agent', 'fortran-http/0.1.0')]
         end if
 
         ! setting the request data to be send
@@ -99,6 +102,11 @@ contains
         ! setting request form
         if(present(form)) then
             request%form = form
+        end if
+
+        ! setting request file
+        if(present(file)) then
+            request%file = file
         end if
 
         ! Populates the response 
@@ -128,7 +136,7 @@ contains
             !! An inout argument of the client_type class that specifies the HTTP request to send.
         type(response_type), target :: response
             !! A response_type object containing the server's response.
-        type(c_ptr) :: curl_ptr,  header_list_ptr
+        type(c_ptr) :: curl_ptr, header_list_ptr
         integer :: rc, i
         
         curl_ptr = c_null_ptr
@@ -147,16 +155,13 @@ contains
         end if
 
         ! setting request URL
-        rc = curl_easy_setopt(curl_ptr, CURLOPT_URL, this%request%url )
+        rc = curl_easy_setopt(curl_ptr, CURLOPT_URL, this%request%url)
 
         ! setting request method
         rc = set_method(curl_ptr, this%request%method, response)
 
-        ! encode the request form
-        call prepare_form_encoded_str(curl_ptr, this%request)
-        
         ! setting request body
-        rc = set_body(curl_ptr, this%request%data, this%request%form_encoded_str)
+        rc = set_body(curl_ptr, this%request)
 
         ! prepare headers for curl
         call prepare_request_header_ptr(header_list_ptr, this%request%header)
@@ -198,10 +203,7 @@ contains
     ! The encoded name-value pairs are concatenated into a single string, separated 
     ! by '&' characters. The resulting string is stored in the form_encoded_str field
     ! of the request object.
-    ! Finally, the subroutine checks if the Content-Type header is already set in the 
-    ! request object. If not, it sets the header to application/x-www-form-urlencoded,
-    ! indicating that the HTTP request body contains URL-encoded form data.
-    subroutine prepare_form_encoded_str(curl_ptr, request) 
+    function prepare_form_encoded_str(curl_ptr, request) result(form_encoded_str)
         !! This subroutine converts the request%form data into URL-encoded name-value pairs
         !! and stores the result in the request%form_encoded_str variable. The resulting
         !! string is used as the HTTP request body with the application/x-www-form-urlencoded
@@ -212,28 +214,25 @@ contains
         type(request_type), intent(inout) :: request
             !! An inout argument of the request_type type, which contains the form data to be
             !! encoded and the form_encoded_str variable to store the result.
+        character(:), allocatable :: form_encoded_str
         integer :: i
         if(allocated(request%form)) then
             do i=1, size(request%form)
-                if(.not. allocated(request%form_encoded_str)) then
-                    request%form_encoded_str = curl_easy_escape(curl_ptr, request%form(i)%name, &
+                if(.not. allocated(form_encoded_str)) then
+                    form_encoded_str = curl_easy_escape(curl_ptr, request%form(i)%name, &
                     len(request%form(i)%name)) // '=' // curl_easy_escape(curl_ptr, &
                     request%form(i)%value, len(request%form(i)%value))
                 else
-                    request%form_encoded_str = request%form_encoded_str // '&' // &
+                    form_encoded_str = form_encoded_str // '&' // &
                     curl_easy_escape(curl_ptr, request%form(i)%name, len(request%form(i)%name))&
                     // '=' // curl_easy_escape(curl_ptr, request%form(i)%value, len(request%form(i)%value))
                 end if
             end do
-            ! setting the Content-Type header to application/x-www-form-urlencoded, used for sending form data
-            if (.not. header_has_key(request%header, 'Content-Type')) then
-                call append_header(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
-            end if
         end if
-    end subroutine prepare_form_encoded_str
+    end function prepare_form_encoded_str
 
     ! This subroutine prepares a linked list of headers for an HTTP request using the libcurl library. 
-    ! The function takes an array of header_type objects that contain the key-value pairs of the headers 
+    ! The function takes an array of pair_type objects that contain the key-value pairs of the headers 
     ! to include in the request. The subroutine iterates over the array and constructs a string for each 
     ! header in the format "key:value". The subroutine then appends each string to the linked list using 
     ! the curl_slist_append function. The resulting linked list is returned via the header_list_ptr argument.
@@ -241,15 +240,15 @@ contains
         !! This subroutine prepares a linked list of headers for an HTTP request using the libcurl library.
         type(c_ptr), intent(out) :: header_list_ptr
             !! An out argument of type c_ptr that is allocated and set to point to a linked list of headers.
-        type(header_type), allocatable, intent(in) :: req_headers(:)
-            !! An in argument of type header_type array that specifies the headers to include in the request.
-        character(:), allocatable :: h_key, h_val, final_header_string
+        type(pair_type), allocatable, intent(in) :: req_headers(:)
+            !! An in argument of type pair_type array that specifies the headers to include in the request.
+        character(:), allocatable :: h_name, h_val, final_header_string
         integer :: i
 
         do i = 1, size(req_headers)
-            h_key = req_headers(i)%key
+            h_name = req_headers(i)%name
             h_val = req_headers(i)%value
-            final_header_string = h_key // ':' // h_val 
+            final_header_string = h_name // ':' // h_val 
             header_list_ptr = curl_slist_append(header_list_ptr, final_header_string)
         end do
     end subroutine prepare_request_header_ptr
@@ -290,33 +289,87 @@ contains
         end select
     end function set_method
 
-    ! This function sets the request body for a curl handle based on the input data and form_encoded_str 
-    ! strings and returns the status of the curl_easy_setopt function call. The function takes two input 
-    ! arguments, data and form_encoded_str, which represent the request body data as a raw string or in 
-    ! URL encoded form, respectively. The function then uses an if statement to set the request body using 
-    ! the curl_easy_setopt function call and the CURLOPT_POSTFIELDS and CURLOPT_POSTFIELDSIZE_LARGE options. 
-    ! The function returns an integer value representing the status of the curl_easy_setopt function call.
-    function set_body(curl_ptr, data, form_encoded_str) result(status)
-        !! This function sets the request body for a curl handle based on the input data and form_encoded_str
-        !! strings and returns the status of the curl_easy_setopt function call.
+    ! The set_body function determines the type of data to include in the request body 
+    ! based on the inputs provided. If data is provided, it is sent as the body of the 
+    ! request. If form is provided without a file, the form data is URL encoded and sent 
+    ! as the body of the request. If file is provided without form, the file is sent 
+    ! using a multipart/form-data header. If both form and file are provided, the file 
+    ! takes priority and the form data along with file is sent as part of the multipart/form-data 
+    ! body. If data, form, and file are all provided, only data is sent and the form and file 
+    ! inputs are ignored.
+    ! 
+    ! data -> data
+    ! form -> form
+    ! file -> file
+    ! data + form + file -> data
+    ! form + file -> form + file (in multipart/form-data)
+    ! 
+    ! Note : At a time only one file can be send
+    function set_body(curl_ptr, request) result(status)
+        !! The set_body function sets the request body.
         type(c_ptr), intent(out) :: curl_ptr
             !! An out argument of type c_ptr that is set to point to a new curl handle.
-        character(*), intent(in), target :: data
-            !! An in argument of type character(*) that specifies the request body data.
-        character(*), intent(in), target :: form_encoded_str
-            !! An in argument of type character(*) that specifies the request body data in URL encoded form.
+        type(request_type), intent(inout) :: request
+            !! The HTTP request
         integer :: status
             !! An integer value representing the status of the curl_easy_setopt function call.
+        
         integer :: i
+        character(len=:), allocatable :: form_encoded_str
+        type(c_ptr) :: mime_ptr, part_ptr
 
-        if(len(data) > 0) then
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(data))
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data, kind=int64))
-        else if(len(form_encoded_str) > 0) then
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(form_encoded_str))
-            status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(form_encoded_str, kind=int64))    
+        ! if only data is passed
+        if(len(request%data) > 0) then
+            status = set_postfields(curl_ptr, request%data)
+        
+        ! if file is passsed
+        else if(len(request%file%name) > 0) then
+            mime_ptr = curl_mime_init(curl_ptr)
+            part_ptr = curl_mime_addpart(mime_ptr)
+            status = curl_mime_filedata(part_ptr, request%file%value)
+            status = curl_mime_name(part_ptr, request%file%name)
+            
+            ! if both file and form are passed
+            if(allocated(request%form)) then 
+                do i=1, size(request%form)
+                    part_ptr = curl_mime_addpart(mime_ptr)
+                    status = curl_mime_data(part_ptr, request%form(i)%value, CURL_ZERO_TERMINATED)
+                    status = curl_mime_name(part_ptr, request%form(i)%name)
+                end do
+            end if
+            status = curl_easy_setopt(curl_ptr, CURLOPT_MIMEPOST, mime_ptr)
+            
+            ! setting the Content-Type header to multipart/form-data, used for sending  binary data
+            if (.not. pair_has_name(request%header, 'Content-Type')) then
+                call append_pair(request%header, 'Content-Type', 'multipart/form-data')
+            end if
+        
+        ! if only form is passed
+        else if(allocated(request%form)) then
+            request%form_encoded_str = prepare_form_encoded_str(curl_ptr, request)
+            status = set_postfields(curl_ptr, request%form_encoded_str)
+           
+            ! setting the Content-Type header to application/x-www-form-urlencoded, used for sending form data
+            if (.not. pair_has_name(request%header, 'Content-Type')) then
+                call append_pair(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
+            end if
         end if
+        
     end function set_body
+
+    function set_postfields(curl_ptr, data) result(status)
+        !! Set the data to be sent in the HTTP POST request body.
+        type(c_ptr), intent(inout) :: curl_ptr
+            !! Pointer to the CURL handle.
+        character(*), intent(in), target :: data
+            !! The data to be sent in the request body.
+        integer :: status
+            !! An integer indicating whether the operation was successful (0) or not (non-zero).
+
+        status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDS, c_loc(data))
+        status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data, kind=int64))
+
+    end function set_postfields
 
     ! This function is a callback function used by the libcurl library to handle HTTP responses. It is 
     ! called for each chunk of data received from the server and appends the data to a response_type object. 
@@ -368,7 +421,7 @@ contains
     function client_header_callback(ptr, size, nmemb, client_data) bind(c)
         !! This function is a callback function used by the libcurl library to handle HTTP headers. 
         !! It is called for each header received from the server and stores the header in an array of 
-        !! header_type objects in a response_type object.
+        !! pair_type objects in a response_type object.
         type(c_ptr), intent(in), value :: ptr 
             !! An in argument of type c_ptr that points to the received header buffer.
         integer(kind=c_size_t), intent(in), value :: size 
@@ -380,7 +433,7 @@ contains
         integer(kind=c_size_t) :: client_header_callback 
             !! An integer(kind=c_size_t) value representing the number of bytes received.
         type(response_type), pointer :: response 
-        character(len=:), allocatable :: buf, h_key, h_value
+        character(len=:), allocatable :: buf, h_name, h_value
         integer :: i
       
         client_header_callback = int(0, kind=c_size_t)
@@ -396,15 +449,15 @@ contains
         call c_f_str_ptr(ptr, buf, nmemb)
         if (.not. allocated(buf)) return
         
-        ! Parsing Header, and storing in array of header_type object
+        ! Parsing Header, and storing in array of pair_type object
         i = index(buf, ':')
         if(i /= 0 .and. len(buf) > 2) then
-            h_key = trim(buf(:i-1))
+            h_name = trim(buf(:i-1))
             h_value = buf(i+2 : )
             h_value = h_value( : len(h_value)-2)
-            if(len(h_value) > 0 .and. len(h_key) > 0) then
-                call append_header(response%header, h_key, h_value)
-                ! response%header = [response%header, header_type(h_key, h_value)]
+            if(len(h_value) > 0 .and. len(h_name) > 0) then
+                call append_pair(response%header, h_name, h_value)
+                ! response%header = [response%header, pair_type(h_name, h_value)]
             end if
         end if
         deallocate(buf)

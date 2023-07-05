@@ -1,16 +1,16 @@
 program test_header
 
     use iso_fortran_env, only: stderr => error_unit
-    use http_header, only: get_header_value, header_has_key, header_type
+    use http_pair, only: get_pair_value, pair_has_name, pair_type
 
     implicit none
-    type(header_type), allocatable :: header(:)
+    type(pair_type), allocatable :: header(:)
     logical :: ok = .true.
     integer :: n
 
     header = [ &
-        header_type('One', '1'), &
-        header_type('Two', '2') &
+        pair_type('One', '1'), &
+        pair_type('Two', '2') &
     ]
 
     if (.not. size(header) == 2) then
@@ -28,7 +28,7 @@ program test_header
         write(stderr, '(a)') 'Failed: Second header value is incorrect.'
     end if
 
-    header = [header, header_type('Three', '3')]
+    header = [header, pair_type('Three', '3')]
 
     if (.not. size(header) == 3) then
         ok = .false.
@@ -41,22 +41,22 @@ program test_header
     end if
 
     do n = 1, size(header)
-        if (.not. get_header_value(header, header(n)%key) == header(n)%value) then
+        if (.not. get_pair_value(header, header(n)%name) == header(n)%value) then
             ok = .false.
             write(stderr, '(a)') 'Failed: Appended header value is incorrect.'
         end if
     end do
 
     do n = 1, size(header)
-        if (.not. header_has_key(header, header(n)%key)) then
+        if (.not. pair_has_name(header, header(n)%name)) then
             ok = .false.
-            write(stderr, '(a)') 'Failed: Incorrect output from header_has_key.'
+            write(stderr, '(a)') 'Failed: Incorrect output from pair_has_name.'
         end if
     end do
 
-    if (header_has_key(header, "Non-Existent")) then
+    if (pair_has_name(header, "Non-Existent")) then
         ok = .false.
-        write(stderr, '(a)') 'Failed: Incorrect output from header_has_key for non-existent key.'
+        write(stderr, '(a)') 'Failed: Incorrect output from pair_has_name for non-existent key.'
     end if
   
     if (.not. ok) then 
