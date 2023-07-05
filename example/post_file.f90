@@ -8,7 +8,7 @@ program post_file
     type(pair_type) :: file_data
 
     ! pair_type('<file_field_name>', '/path/to/file.txt')
-    file_data = pair_type('info', './data/file.txt')
+    file_data = pair_type('file.txt', './example/data/file.txt')
 
     response = request(url='https://httpbin.org/post', method=HTTP_POST, file=file_data)
 
