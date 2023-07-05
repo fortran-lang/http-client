@@ -1,9 +1,9 @@
 module http_pair
 
-    !! This module provides a simple name-value type to use for HTTP Header, Form, File.
-    !! It also provides procedures to inquire about the presence of a name and
-    !! its value in a pair array, as well as a procedure to append new
-    !! pairs to an existing array of pairs.
+    !! This module provides a simple name-value type to use for HTTP Header,
+    !! Form, and File. It also provides procedures to inquire about the presence
+    !! of a name and its value in a pair array, as well as a procedure to append
+    !! new pairs to an existing array of pairs.
 
     use stdlib_ascii, only: to_lower
 
@@ -16,36 +16,34 @@ module http_pair
     public :: pair_has_name
     
     type :: pair_type
-        !! A derived type use to store a name-value pair, it is 
-        !! use in many instances like : 
-        !! 1. To store request and response headers. 
-        !!  * `name` represent the header name.
-        !!  * `value` represent the header value. 
-        !! 2. While sending Form data, it represent a single a single field 
-        !!    of an HTTP form.
-        !!  * `name` represents the name of the single form field.
-        !!  * `value` represents the value of that single form field.
-        !! 3. While sending File, it is used to store information about 
-        !!    files to be sent.
-        !!  * `name` represent the name of the file.
-        !!  * `value` represent the path of the file on the local system. 
+        !! A derived type use to store a name-value pair, it is used in many
+        !! instances like:
+        !! 1. Storing request and response headers:
+        !!  * `name` to represent the header name.
+        !!  * `value` to represent the header value.
+        !! 2. Representing fields in a url-encoded HTTP form:
+        !!  * `name` to represent the form field name.
+        !!  * `value` to represent the form field value.
+        !! 3. Storing information about the file to upload:
+        !!  * `name` to represent the name of the file.
+        !!  * `value` to represent the path of the file on the local system.
         character(:), allocatable :: name
-            !! represent the name of the pair.
+            !! Name (key)
         character(:), allocatable :: value
-            !! represent the value of the pair.
+            !! Value
     end type pair_type
 
 contains
 
     subroutine append_pair(pair, name, value)
-        !! Append a new pair_type instance with name and value members to
+        !! Append a new `pair_type` instance with name and value members to
         !! the pair array.
         type(pair_type), allocatable, intent(inout) :: pair(:)
-            !! pair array to append to
+            !! `pair_type` array to append to
         character(*), intent(in) :: name
-            !! name member of pair_type to append
+            !! Name member of `pair_type` to append
         character(*), intent(in) :: value
-            !! Value member of pair_type to append
+            !! Value member of `pair_type` to append
         type(pair_type), allocatable :: temp(:)
         integer :: n
 
@@ -62,14 +60,15 @@ contains
     end subroutine append_pair
 
     pure function get_pair_value(pair, name) result(val)
-        !! Return the value of a requested name in a pair array. If the name is
-        !! not found, the function returns an empty string (unallocated). If
-        !! there are duplicates of the name in the pair array, return the value
-        !! of the first occurence of the name.
+        !! Return the value of a requested name in a pair array.
+        !! The search for the pair by its name is case-insensitive.
+        !! If the name is not found, the function returns an unallocated string.
+        !! If there are duplicates of the name in the pair array, return the
+        !! value of the first occurence of the name.
         type(pair_type), intent(in) :: pair(:)
-            !! pair to search for name
+            !! Pair to search for name
         character(*), intent(in) :: name
-            !! name to search in pair
+            !! Name to search in pair
         character(:), allocatable :: val
             !! Value of the name to return
         integer :: n
@@ -88,9 +87,9 @@ contains
         !! HTTP pairs are case insensitive, so values are converted to
         !! lowercase before comparison.
         type(pair_type), intent(in) :: pair(:)
-            !! pair to search for name
+            !! Pair to search for name
         character(*), intent(in) :: name
-            !! name to search in pair
+            !! Name to search in pair
         integer :: n
 
         pair_has_name = .false.
