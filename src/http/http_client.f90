@@ -354,7 +354,7 @@ contains
                 call append_pair(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
             end if
         else
-            ! curl_easy_setopt was not called so set status to zero.
+            ! No curl function was called so set status to zero.
             status = 0
         end if
         
