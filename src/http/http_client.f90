@@ -319,11 +319,11 @@ contains
         type(c_ptr) :: mime_ptr, part_ptr
 
         ! if only data is passed
-        if(len(request%data) > 0) then
+        if (allocated(request%data)) then
             status = set_postfields(curl_ptr, request%data)
         
         ! if file is passsed
-        else if(len(request%file%name) > 0) then
+        else if (allocated(request%file)) then
             mime_ptr = curl_mime_init(curl_ptr)
             part_ptr = curl_mime_addpart(mime_ptr)
             status = curl_mime_filedata(part_ptr, request%file%value)
@@ -345,7 +345,7 @@ contains
             end if
         
         ! if only form is passed
-        else if(allocated(request%form)) then
+        else if (allocated(request%form)) then
             request%form_encoded_str = prepare_form_encoded_str(curl_ptr, request)
             status = set_postfields(curl_ptr, request%form_encoded_str)
            
@@ -353,6 +353,9 @@ contains
             if (.not. pair_has_name(request%header, 'Content-Type')) then
                 call append_pair(request%header, 'Content-Type', 'application/x-www-form-urlencoded')
             end if
+        else
+            ! curl_easy_setopt was not called so set status to zero.
+            status = 0
         end if
         
     end function set_body
