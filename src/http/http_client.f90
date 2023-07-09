@@ -19,7 +19,8 @@ module http_client
         CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
         CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape, &
         curl_mime_init, curl_mime_addpart, curl_mime_filedata,curl_mime_name, &
-        CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED
+        CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED, &
+        CURLOPT_HTTPAUTH, CURLAUTH_BASIC, CURLOPT_USERNAME, CURLOPT_PASSWORD
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
@@ -53,7 +54,7 @@ contains
     ! new client_type object using the request object as a parameter and sends the request to the server
     ! using the client_get_response method. The function returns the response_type object containing the
     ! server's response.
-    function new_request(url, method, header, data, form, file) result(response)
+    function new_request(url, method, header, data, form, file, auth) result(response)
         !! This function creates a new HTTP request object of the request_type type and sends 
         !! the request to the server using the client_type object. The function takes the URL, 
         !! HTTP method, request headers, request data, and form data as input arguments and returns 
@@ -71,6 +72,8 @@ contains
             !! An optional array of pair_type objects that specifies the form data to send in the request body.
         type(pair_type), intent(in), optional :: file
             !! An optional pair_type object that specifies the file data to send in the request body.
+        type(pair_type), intent(in), optional :: auth
+            !! An optional pair_type object that stores the username and password for Authentication
         type(response_type) :: response
             !! A response_type object containing the server's response.
         type(request_type) :: request
@@ -107,6 +110,11 @@ contains
         ! setting request file
         if(present(file)) then
             request%file = file
+        end if
+
+        ! setting username and password for Authentication
+        if(present(auth)) then
+            request%auth = auth
         end if
 
         ! Populates the response 
@@ -162,6 +170,9 @@ contains
 
         ! setting request body
         rc = set_body(curl_ptr, this%request)
+
+        ! setting request authentication
+        rc = set_auth(curl_ptr, this%request)
 
         ! prepare headers for curl
         call prepare_request_header_ptr(header_list_ptr, this%request%header)
@@ -315,7 +326,6 @@ contains
             !! An integer value representing the status of the curl_easy_setopt function call.
         
         integer :: i
-        character(len=:), allocatable :: form_encoded_str
         type(c_ptr) :: mime_ptr, part_ptr
 
         ! if only data is passed
@@ -373,6 +383,26 @@ contains
         status = curl_easy_setopt(curl_ptr, CURLOPT_POSTFIELDSIZE_LARGE, len(data, kind=int64))
 
     end function set_postfields
+
+    function set_auth(curl_ptr, request) result(status)
+        !! Set the user name and password for Authentication. It sends the user name 
+        !! and password over the network in plain text, easily captured by others.
+        type(c_ptr), intent(out) :: curl_ptr
+            !! An out argument of type c_ptr that is set to point to a new curl handle.
+        type(request_type), intent(inout) :: request
+            !! The HTTP request
+        integer :: status
+            !! An integer value representing the status of the curl_easy_setopt function call.
+
+        if(allocated(request%auth)) then
+            status = curl_easy_setopt(curl_ptr, CURLOPT_HTTPAUTH, CURLAUTH_BASIC)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_USERNAME, request%auth%name)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_PASSWORD, request%auth%value)
+        else 
+            ! No curl function was called so set status to zero.
+            status = 0
+        end if
+    end function set_auth
 
     ! This function is a callback function used by the libcurl library to handle HTTP responses. It is 
     ! called for each chunk of data received from the server and appends the data to a response_type object. 

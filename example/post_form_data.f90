@@ -4,7 +4,6 @@ program post_form_data
     use http, only: response_type, request, HTTP_POST, pair_type
     implicit none
     type(response_type) :: response
-    type(pair_type), allocatable :: req_header(:)
     type(pair_type), allocatable :: form_data(:)
 
     ! Storing form data in a array of pair_type object, each pair_type object 
