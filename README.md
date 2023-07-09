@@ -99,6 +99,13 @@ fpm test
 ```
 Running the tests will validate the behavior of the package and help identify any issues or regressions.
 
+### Supported compilers
+
+http-client is known to work with the following compilers:
+
+* GFortran 11 & 12 (tested in CI)
+* Intel OneAPI ifx v2023.1.0 and ifort classic v2021.9.0
+
 ### **Contributing guidelines**
 
 When contributing to the http Fortran package, please keep the following guidelines in mind:
