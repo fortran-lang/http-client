@@ -19,7 +19,8 @@ module http_client
         CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
         CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape, &
         curl_mime_init, curl_mime_addpart, curl_mime_filedata,curl_mime_name, &
-        CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED, CURLOPT_TIMEOUT
+        CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED, &
+        CURLOPT_TIMEOUT, CURLOPT_CONNECTTIMEOUT
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
@@ -309,6 +310,9 @@ contains
         if(timeout < 0) then
             status = 0
         else
+            ! setting the maximum time allowed for the connection to established.(in seconds)
+            status = curl_easy_setopt(curl_ptr, CURLOPT_CONNECTTIMEOUT, timeout)
+            ! setting maximum time allowed for transfer operation.(in seconds)
             status = curl_easy_setopt(curl_ptr, CURLOPT_TIMEOUT, timeout)
         end if
     end function set_timeout
