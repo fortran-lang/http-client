@@ -19,7 +19,7 @@ module http_client
         CURLOPT_WRITEDATA, CURLOPT_WRITEFUNCTION, &
         CURLOPT_POSTFIELDS, CURLOPT_POSTFIELDSIZE_LARGE, curl_easy_escape, &
         curl_mime_init, curl_mime_addpart, curl_mime_filedata,curl_mime_name, &
-        CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED
+        CURLOPT_MIMEPOST,curl_mime_data, CURL_ZERO_TERMINATED, CURLOPT_TIMEOUT
     use stdlib_optval, only: optval
     use http_request, only: request_type
     use http_response, only: response_type
@@ -53,7 +53,7 @@ contains
     ! new client_type object using the request object as a parameter and sends the request to the server
     ! using the client_get_response method. The function returns the response_type object containing the
     ! server's response.
-    function new_request(url, method, header, data, form, file) result(response)
+    function new_request(url, method, header, data, form, file, timeout) result(response)
         !! This function creates a new HTTP request object of the request_type type and sends 
         !! the request to the server using the client_type object. The function takes the URL, 
         !! HTTP method, request headers, request data, and form data as input arguments and returns 
@@ -71,6 +71,8 @@ contains
             !! An optional array of pair_type objects that specifies the form data to send in the request body.
         type(pair_type), intent(in), optional :: file
             !! An optional pair_type object that specifies the file data to send in the request body.
+        integer, intent(in), optional :: timeout
+            !! Timeout value for the request in seconds
         type(response_type) :: response
             !! A response_type object containing the server's response.
         type(request_type) :: request
@@ -109,6 +111,13 @@ contains
             request%file = file
         end if
 
+        ! Set request timeout.
+        if(present(timeout)) then
+            request%timeout = timeout
+        else
+            request%timeout = -1
+        end if
+                
         ! Populates the response 
         client = client_type(request=request)
         response = client%client_get_response()
@@ -159,6 +168,9 @@ contains
 
         ! setting request method
         rc = set_method(curl_ptr, this%request%method, response)
+
+        ! setting request timeout
+        rc = set_timeout(curl_ptr, this%request%timeout)
 
         ! setting request body
         rc = set_body(curl_ptr, this%request)
@@ -288,6 +300,17 @@ contains
             error stop 'Method argument can be either HTTP_GET, HTTP_HEAD, HTTP_POST, HTTP_PUT, HTTP_DELETE, HTTP_PATCH'
         end select
     end function set_method
+
+    function set_timeout(curl_ptr, timeout) result(status)
+        type(c_ptr), intent(out) :: curl_ptr
+        integer(kind=int64), intent(in) :: timeout
+        integer :: status
+        if(timeout < 0) then
+            status = 0
+        else
+            status = curl_easy_setopt(curl_ptr, CURLOPT_TIMEOUT, timeout)
+        end if
+    end function set_timeout
 
     ! The set_body function determines the type of data to include in the request body 
     ! based on the inputs provided. If data is provided, it is sent as the body of the 
