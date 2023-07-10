@@ -8,7 +8,7 @@ program test_timeout
     logical :: ok = .true.
 
 
-    res = request(url='https://httpbin.org/delay/10', timeout=5)
+    res = request(url='https://httpbin.org/delay/10', timeout=1)
     
     msg = 'test_timeout: '
 
