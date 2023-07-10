@@ -1,5 +1,7 @@
 program timeout
-
+    ! This program demonstrates the use of the timeout option. The request below is designed
+    ! to take more than 10 seconds to complete, but we set the timeout value to 5 seconds.
+    ! As a result, the request will fail with an error message that says "Timeout was reached".
     use http, only: response_type, request
     implicit none
     type(response_type) :: response
@@ -10,8 +12,6 @@ program timeout
         print *,'Error message : ', response%err_msg
     else
         print *, 'Response Code    : ', response%status_code
-        print *, 'Response Length  : ', response%content_length
-        print *, 'Response Method  : ', response%method
         print *, 'Response Content : ', response%content
     end if
 

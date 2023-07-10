@@ -112,11 +112,7 @@ contains
         end if
 
         ! Set request timeout.
-        if(present(timeout)) then
-            request%timeout = timeout
-        else
-            request%timeout = -1
-        end if
+        request%timeout = optval(timeout, -1)
                 
         ! Populates the response 
         client = client_type(request=request)
@@ -302,9 +298,14 @@ contains
     end function set_method
 
     function set_timeout(curl_ptr, timeout) result(status)
+        !! This function sets the timeout value (in seconds). If the timeout value 
+        !! is less than zero, it is ignored and a success status is returned. 
         type(c_ptr), intent(out) :: curl_ptr
+            !! Pointer to the curl handle.
         integer(kind=int64), intent(in) :: timeout
+            !! Timeout seconds for request.
         integer :: status
+            !! Status code indicating whether the operation was successful.
         if(timeout < 0) then
             status = 0
         else
