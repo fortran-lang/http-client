@@ -3,7 +3,7 @@ module http_request
     !! This module contains the definition of a request_type derived type, which 
     !! represents an HTTP request.
 
-    ! use http_form , only: pair_type
+    use iso_fortran_env, only: int64
     use http_pair, only: pair_type
     use stdlib_string_type, only: string_type, to_lower, operator(==), char
 
@@ -38,6 +38,7 @@ module http_request
             !! An array of fields in an HTTP form.
         type(pair_type), allocatable :: file
             !! Used to store information about files to be sent in HTTP requests.
+        integer(kind=int64) :: timeout
         type(pair_type), allocatable :: auth
             !! Stores the username and password for Authentication
     end type request_type
