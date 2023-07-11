@@ -38,5 +38,7 @@ module http_request
             !! An array of fields in an HTTP form.
         type(pair_type), allocatable :: file
             !! Used to store information about files to be sent in HTTP requests.
+        type(pair_type), allocatable :: auth
+            !! Stores the username and password for Authentication
     end type request_type
 end module http_request
