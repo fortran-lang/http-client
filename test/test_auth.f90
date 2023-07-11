@@ -9,8 +9,8 @@ program test_auth
     type(pair_type) :: auth
 
     ! setting username and password
-    auth = pair_type('user', 'passwd')   
-    res = request(url='https://postman-echo.com/get', auth=auth)
+    auth = pair_type('postman', 'password')   
+    res = request(url='https://postman-echo.com/basic-auth', auth=auth)
     
     msg = 'test_auth: '
    
@@ -28,14 +28,13 @@ program test_auth
     end if
    
     ! Content Length Validation
-    if (res%content_length /= 348 .or. &
-        len(res%content) /= 348) then
+    if (res%content_length /= 27 .or. &
+        len(res%content) /= 27) then
         ok = .false.
         print '(a)', 'Failed : Content Length Validation'
     end if
 
     if (.not. ok) then 
-        print *, res%content
         msg = msg // 'Test Case Failed'
         write(stderr, '(a)'), msg
         error stop 1
