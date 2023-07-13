@@ -30,6 +30,8 @@ module http_client
     implicit none
 
     private
+    character(*), parameter :: http_version = '1.0'
+    !! http version
     public :: request
 
     ! http_client Type
@@ -94,10 +96,10 @@ contains
             request%header = header
             ! Set default request headers.
             if (.not. pair_has_name(header, 'user-agent')) then
-              call append_pair(request%header, 'user-agent', 'fortran-http/0.1.0')
+              call append_pair(request%header, 'user-agent', 'http-client/'//http_version)
             end if
         else
-            request%header = [pair_type('user-agent', 'fortran-http/0.1.0')]
+            request%header = [pair_type('user-agent', 'http-client/'//http_version)]
         end if
 
         ! setting the request data to be send
