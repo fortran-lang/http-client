@@ -26,12 +26,11 @@ module http_client
     use http_request, only: request_type
     use http_response, only: response_type
     use http_pair, only: append_pair, pair_has_name, pair_type
+    use http_version, only: VERSION_STRING
     
     implicit none
 
     private
-    character(*), parameter :: http_version = '1.0'
-    !! http version
     public :: request
 
     ! http_client Type
@@ -96,10 +95,10 @@ contains
             request%header = header
             ! Set default request headers.
             if (.not. pair_has_name(header, 'user-agent')) then
-              call append_pair(request%header, 'user-agent', 'http-client/'//http_version)
+              call append_pair(request%header, 'user-agent', 'http-client/'//VERSION_STRING)
             end if
         else
-            request%header = [pair_type('user-agent', 'http-client/'//http_version)]
+            request%header = [pair_type('user-agent', 'http-client/'//VERSION_STRING)]
         end if
 
         ! setting the request data to be send
