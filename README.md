@@ -19,7 +19,8 @@ sudo apt install -y libcurl4-openssl-dev
 To use `http` within your fpm project, add the following to your package manifest file (fpm.toml):
 ```toml
 [dependencies]
-fhash = { git = "https://github.com/fortran-lang/http-client.git" }
+http.git = "https://github.com/fortran-lang/http-client.git"
+stdlib = "*"
 ```
 ## **Usage Example**
 The following example demonstrates how to use the http package to make a **Simple GET request** and process the response
@@ -29,6 +30,7 @@ program simple_get
     use http, only : response_type, request
     implicit none
     type(response_type) :: response
+    ! stores the HTTP response received from the server.
 
     ! Send a GET request to retrieve JSON data
     response = request(url='https://jsonplaceholder.typicode.com/todos/1')
@@ -38,9 +40,17 @@ program simple_get
         print *, 'Error message:', response%err_msg
     else
         ! Print the response details
+        
+        ! The HTTP status code of the response (e.g., 200 for success, 404 for not found, etc.).
         print *, 'Response Code    :', response%status_code
+        
+        ! The length of the response content.
         print *, 'Response Length  :', response%content_length
+
+        ! The HTTP method used in the request (e.g., GET, POST, etc.).
         print *, 'Response Method  :', response%method
+
+        ! The content of the response, which, in this case, contains JSON data.
         print *, 'Response Content :', response%content
     end if
 
@@ -60,6 +70,9 @@ end program simple_get
 }
 ```
 In this example, we make a GET request to the URL https://jsonplaceholder.typicode.com/todos/1 to retrieve JSON data. If the request is successful, we print the ***response code, content length, method, and content***. If the request fails, we print the ***error message***.
+
+## **Complete Beginner's Tutorial**
+Explore the comprehensive tutorial for beginners by clicking [here](tutorial.md). This tutorial covers all the essential steps and instructions to get started with the `http-client`.
 
 ## **Contributing to project**
 Thank you for your interest in contributing to the `http` Fortran package! Contributions from the community are valuable in improving and enhancing the functionality of the package. This section provides a guide on how to get the code, build the library, and run examples and tests.
