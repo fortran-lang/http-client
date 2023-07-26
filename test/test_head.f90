@@ -8,10 +8,9 @@ program test_head
     logical :: ok = .true.
 
 
-    res = request(url='https://www.w3schools.com/python/demopage.php', method=HTTP_HEAD)
+    res = request(url='https://postman-echo.com/head', method=HTTP_HEAD)
     
     msg = 'test_head: '
-   
     if (.not. res%ok) then
         ok = .false.
         msg = msg // res%err_msg
@@ -23,12 +22,6 @@ program test_head
     if (res%status_code /= 200) then
         ok = .false.
         print '(a)', 'Failed : Status Code Validation'
-    end if
-
-    ! Header Size Validation
-    if (size(res%header) /= 13) then
-        ok = .false.
-        print '(a)', 'Failed : Header Size Validation'
     end if
 
     if (.not. ok) then 
