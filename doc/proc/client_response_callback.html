@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="The http Fortran package provides a simple and convenient way to make HTTP requests and retrieve responses. It aims to simplify the process of interacting with web services by providing a high-level API.">
+    <meta name="author" content="Rajkumar Dongre" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>client_response_callback &ndash; HTTP</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">HTTP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+  <div class="row">
+    <h1>client_response_callback
+      <small>Function</small>
+      
+    </h1>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 6.8% of total for procedures.">20 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/http_client.f90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/http_client.f90.html'>http_client.f90</a></li>
+              <li><a href='../module/http_client.html'>http_client</a></li>
+          <li class="active">client_response_callback</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/client_response_callback.html#src">client_response_callback</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function client_response_callback(ptr, size, nmemb, client_data) bind(c)  
+</h2>
+    
+
+    <blockquote>
+<p>This function is a <code>callback</code> function used by the fortran-curl package to handle HTTP responses. 
+It is called for each <code>chunk</code> of data received from the server and appends the data to a 
+<code>response_type</code> object.</p>
+<hr>
+<p>It is called for each <code>chunk</code> of data received from the server and appends the data to a <code>response_type</code> 
+object passed(i.e <code>client_data</code>). The function takes four input arguments: <code>ptr</code>, <code>size</code>, <code>nmemb</code>,<br>
+and <code>client_data</code>. <code>ptr</code> is a pointer to the received data buffer, <code>size</code> specifies the size of each 
+data element, <code>nmemb</code> specifies the number of data elements received, and <code>client_data</code> is a pointer to<br>
+a <code>response_type</code> object. The function uses <code>c_f_pointer</code> to convert the C pointer to a Fortran pointer and 
+appends the received data to the <code>content</code> field of the <code>response_type</code> object. The function returns an integer
+value representing the <strong>number of bytes received.</strong></p>
+</blockquote>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ptr"></span>
+              type(c_ptr),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              value
+            </td>
+            <td>::</td>
+            <td><strong>ptr</strong></td>
+            <td>
+                <p>Pointer to the CURL handle.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-size"></span>
+              integer(kind=c_size_t),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              value
+            </td>
+            <td>::</td>
+            <td><strong>size</strong></td>
+            <td>
+                <p>Specifies the size of each data element.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nmemb"></span>
+              integer(kind=c_size_t),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              value
+            </td>
+            <td>::</td>
+            <td><strong>nmemb</strong></td>
+            <td>
+                <p>Specifies the number of data elements received.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-client_data"></span>
+              type(c_ptr),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              value
+            </td>
+            <td>::</td>
+            <td><strong>client_data</strong></td>
+            <td>
+                <p>Points to a response_type object.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-client_response_callback"></span>
+          integer(kind=c_size_t)
+        </small>
+      </h3>
+      <p>The number of bytes received.</p>
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/client_response_callback.html#src">client_response_callback</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+
+    
+    
+
+    
+    
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="w">    </span><span class="k">function </span><span class="n">client_response_callback</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">nmemb</span><span class="p">,</span><span class="w"> </span><span class="n">client_data</span><span class="p">)</span><span class="w"> </span><span class="k">bind</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="c">!!&gt; This function is a `callback` function used by the fortran-curl package to handle HTTP responses. </span>
+<span class="w">        </span><span class="c">!!&gt; It is called for each `chunk` of data received from the server and appends the data to a </span>
+<span class="w">        </span><span class="c">!!&gt; `response_type` object.</span>
+<span class="w">        </span><span class="c">!!&gt;_____</span>
+<span class="w">        </span><span class="c">!!&gt; It is called for each `chunk` of data received from the server and appends the data to a `response_type` </span>
+<span class="w">        </span><span class="c">!!&gt; object passed(i.e `client_data`). The function takes four input arguments: `ptr`, `size`, `nmemb`,  </span>
+<span class="w">        </span><span class="c">!!&gt; and `client_data`. `ptr` is a pointer to the received data buffer, `size` specifies the size of each </span>
+<span class="w">        </span><span class="c">!!&gt; data element, `nmemb` specifies the number of data elements received, and `client_data` is a pointer to  </span>
+<span class="w">        </span><span class="c">!!&gt; a `response_type` object. The function uses `c_f_pointer` to convert the C pointer to a Fortran pointer and </span>
+<span class="w">        </span><span class="c">!!&gt; appends the received data to the `content` field of the `response_type` object. The function returns an integer</span>
+<span class="w">        </span><span class="c">!!&gt; value representing the **number of bytes received.**</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="kt">c_ptr</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr</span><span class="w"> </span>
+<span class="w">            </span><span class="c">!! Pointer to the CURL handle.</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="kt">c_size_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">size</span><span class="w"> </span>
+<span class="w">            </span><span class="c">!! Specifies the size of each data element.</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="kt">c_size_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nmemb</span><span class="w"></span>
+<span class="w">            </span><span class="c">!! Specifies the number of data elements received.</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="kt">c_ptr</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_data</span><span class="w"></span>
+<span class="w">            </span><span class="c">!!  Points to a response_type object.</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="kt">c_size_t</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_response_callback</span><span class="w"> </span>
+<span class="w">            </span><span class="c">!! The number of bytes received.</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">response_type</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">response</span><span class="w"> </span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buf</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">        </span><span class="n">client_response_callback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">kind</span><span class="o">=</span><span class="kt">c_size_t</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">        </span><span class="c">! Are the passed C pointers associated?</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">c_associated</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span><span class="w"> </span><span class="k">return</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">c_associated</span><span class="p">(</span><span class="n">client_data</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">        </span><span class="c">! Convert C pointer to Fortran pointer.</span>
+<span class="w">        </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">client_data</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">response</span><span class="p">%</span><span class="n">content</span><span class="p">))</span><span class="w"> </span><span class="n">response</span><span class="p">%</span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"></span>
+<span class="w">      </span>
+<span class="w">        </span><span class="c">! Convert C pointer to Fortran allocatable character.</span>
+<span class="w">        </span><span class="k">call </span><span class="n">c_f_str_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">nmemb</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span><span class="w"> </span><span class="k">return</span>
+<span class="k">        </span><span class="n">response</span><span class="p">%</span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">%</span><span class="n">content</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">buf</span><span class="w"></span>
+<span class="w">        </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">response</span><span class="p">%</span><span class="n">content_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="p">%</span><span class="n">content_length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nmemb</span><span class="w"></span>
+<span class="w">        </span>
+<span class="w">        </span><span class="c">! Return number of received bytes.</span>
+<span class="w">        </span><span class="n">client_response_callback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nmemb</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">end function </span><span class="n">client_response_callback</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>HTTP was developed by Rajkumar Dongre<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-08-01 01:36              </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

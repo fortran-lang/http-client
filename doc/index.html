@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="The http Fortran package provides a simple and convenient way to make HTTP requests and retrieve responses. It aims to simplify the process of interacting with web services by providing a high-level API.">
+    <meta name="author" content="Rajkumar Dongre" >
+    <link rel="icon" href="./favicon.png">
+
+    <title> HTTP </title>
+
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/pygments.css" rel="stylesheet">
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
+    <link href="./css/local.css" rel="stylesheet">
+      <link  href="./tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="./js/jquery-2.1.3.min.js"></script>
+         <script src="./js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="./index.html">HTTP </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="./lists/files.html">Source Files</a></li>
+                  <li><a href="./lists/modules.html">Modules</a></li>
+                  <li><a href="./lists/procedures.html">Procedures</a></li>
+                  <li><a href="./lists/types.html">Derived Types</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="./lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="./lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="./lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="./lists/types.html">Derived Types</a>
+              </li>
+          </ul>
+            <form action="./search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <!-- Main component for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <p>The http Fortran package provides a simple and convenient way to make HTTP requests and retrieve responses. It aims to simplify the process of interacting with web services by providing a high-level API.</p>
+	<p> Find us on&hellip;</p>
+        <p>
+          <a class="btn btn-lg btn-primary" href="https://github.com/fortran-lang/http-client" role="button">GitHub</a>
+        </p>
+      </div>
+
+      <div class="row" id='text'>
+        <div class="col-md-8">
+          <h1>HTTP</h1>
+          <hr>
+<h2><strong>Overview</strong></h2>
+<blockquote>
+<p>The <code>http-client</code> Fortran package provides a user-friendly interface for making HTTP requests and handling responses. It allows users to interact with web services, send various types of data, and retrieve response content, status code, headers, and other relevant information. Additionally, the package supports error handling, request timeout settings, and authentication options.</p>
+</blockquote>
+<hr>
+<h2><strong>Features</strong></h2>
+<blockquote>
+<p>The package includes the following features:</p>
+<ol>
+<li>
+<h4><strong>Sending HTTP Requests:</strong></h4>
+<ul>
+<li><strong><code>GET</code></strong>: Retrieve data from the server.</li>
+<li><strong><code>POST</code></strong>: Submit data to be processed by the server.</li>
+<li><strong><code>PUT</code></strong>: Replace or create resources on the server.</li>
+<li><strong><code>DELETE</code></strong>: Remove resources from the server.</li>
+<li><strong><code>PATCH</code></strong>: Partial updates to resources.</li>
+<li><strong><code>HEAD</code></strong>: Retrieve response headers without the response content.</li>
+</ul>
+</li>
+<li>
+<h4><strong>Data Support:</strong></h4>
+<ul>
+<li>Send any type of data with requests, including support for <code>file</code> uploads and <code>form data</code>.</li>
+</ul>
+</li>
+<li>
+<h4><strong>Response Handling:</strong></h4>
+<ul>
+<li>Retrieve response <code>content</code>.</li>
+<li>Get the HTTP <code>status code</code> returned by the server.</li>
+<li>Fetch the <code>length</code> of the response content.</li>
+<li>Access response <code>headers</code>.</li>
+</ul>
+</li>
+<li>
+<h4><strong>Custom Headers:</strong></h4>
+<ul>
+<li>Include <code>custom headers</code> in requests to the server.</li>
+</ul>
+</li>
+<li>
+<h4><strong>Error Handling:</strong></h4>
+<ul>
+<li>Detect and handle unsuccessful requests gracefully, with informative <code>error messages</code>.</li>
+</ul>
+</li>
+<li>
+<h4><strong>Request Timeout:</strong></h4>
+<ul>
+<li>Set a maximum time allowed for a request to complete, improving responsiveness.</li>
+</ul>
+</li>
+<li>
+<h4><strong>Authentication:</strong></h4>
+<ul>
+<li>Authenticate requests to protected resources using standard authentication methods.</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<hr>
+<blockquote>
+<h2><strong>Installation</strong></h2>
+<p>Before building the <code>http-client</code> library, ensure that you have the necessary dependencies installed. On Ubuntu, you need to install the curl development headers. Use the following command:</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code>sudo apt install -y libcurl4-openssl-dev
+</code></pre></div>
+
+<blockquote>
+<p>To use <code>http-client</code> within your fpm project, add the following to your package manifest file (<code>fpm.toml</code>):</p>
+</blockquote>
+<div class="codehilite"><pre><span></span><code><span class="k">[dependencies]</span><span class="w"></span>
+<span class="n">http</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://github.com/fortran-lang/http-client.git&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="n">stdlib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;*&quot;</span><span class="w"></span>
+</code></pre></div>
+
+<hr>
+<blockquote>
+<h2><strong>Tutorial:</strong></h2>
+<h3><u><strong><em>Content Table</em></strong></u></h3>
+<ol>
+<li>
+<h4><strong>Getting Started</strong> 👋</h4>
+<ul>
+<li>Installing Dependencies (Ubuntu)</li>
+<li>Setting up the Package in your Project</li>
+</ul>
+</li>
+<li>
+<h4><strong>Making HTTP Requests</strong> 🚀</h4>
+<ul>
+<li><strong>Sending <code>GET</code> Requests</strong><ul>
+<li><em>Accessing Response <code>Content</code></em></li>
+<li><em>Retrieving <code>Status Codes</code></em></li>
+<li><em>Getting Response <code>Headers</code></em></li>
+<li><em>Extracting <code>Content Length</code></em></li>
+</ul>
+</li>
+<li><strong>Sending <code>POST</code> Requests</strong><ul>
+<li><em>Sending <code>Data</code> with Requests</em></li>
+<li><em>Sending <code>Form Data</code></em></li>
+<li><em>Uploading <code>File</code></em></li>
+</ul>
+</li>
+<li><strong>Sending <code>PUT</code> Requests</strong></li>
+<li><strong>Sending <code>PATCH</code> Requests</strong></li>
+<li><strong>Sending <code>DELETE</code> Requests</strong></li>
+<li><strong>Sending <code>HEAD</code> Requests</strong></li>
+</ul>
+</li>
+<li>
+<h4><strong>Customizing Requests</strong> ✏️</h4>
+<ul>
+<li>Sending Custom Headers</li>
+<li>Setting Request Timeout</li>
+<li>Authentication Options</li>
+</ul>
+</li>
+<li>
+<h4><strong>Error Handling</strong> 🤨</h4>
+<ul>
+<li>Handling Unsuccessful Requests</li>
+<li>Displaying Error Messages</li>
+</ul>
+</li>
+<li>
+<h4><strong>Real Projects</strong> 🤖</h4>
+<ul>
+<li>GitHub organization analyzer : Retrieve valuable information about the organization repositories</li>
+</ul>
+</li>
+<li>
+<h4><strong>Conclusion</strong> 🤝</h4>
+<ul>
+<li>Recap of Package Features</li>
+<li>Summary of Tutorial</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+        </div>
+        <div class="col-md-4">
+	  <div class="well">
+          <h2>Developer Info</h2>
+          <h4>Rajkumar Dongre</h4>
+          <p>Just Love to build Things 🛠️</p>
+            <div class="text-center"><div class="btn-group" role="group">
+              <a class="btn btn-lg btn-primary" href="mailto:rajkumardongre17@gmail.com"><i class="fa fa-envelope fa-lg"></i></a>
+              <a class="btn btn-lg btn-primary" href="https://github.com/rajkumardongre"><i class="fa fa-github fa-lg"></i></a>
+              <a class="btn btn-lg btn-primary" href="https://twitter.com/ATOM12060827"><i class="fa fa-twitter fa-lg"></i></a>
+            </div></div>
+       </div>
+       </div>
+      </div>
+        <div class="row">
+          <hr>
+          <div class="col-xs-6 col-sm-3">
+            <div>
+              <h3>Source Files</h3>
+              <ul><li><a href='./sourcefile/http.f90.html'>http.f90</a></li><li><a href='./sourcefile/http_client.f90.html'>http_client.f90</a></li><li><a href='./sourcefile/http_pair.f90.html'>http_pair.f90</a></li><li><a href='./sourcefile/http_request.f90.html'>http_request.f90</a></li><li><a href='./sourcefile/http_response.f90.html'>http_response.f90</a></li><li><a href='./sourcefile/http_version.f90.html'>http_version.f90</a></li></ul>
+            </div>
+            <div>
+              <ul>
+                <li><a href="./lists/files.html"><em>All source files&hellip;</em></a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <div>
+              <h3>Modules</h3>
+              <ul><li><a href='./module/http.html'>http</a></li><li><a href='./module/http_client.html'>http_client</a></li><li><a href='./module/http_pair.html'>http_pair</a></li><li><a href='./module/http_request.html'>http_request</a></li><li><a href='./module/http_response.html'>http_response</a></li><li><a href='./module/http_version.html'>http_version</a></li></ul>
+            </div>
+            <div>
+              <ul>
+                <li><a href="./lists/modules.html"><em>All modules&hellip;</em></a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <div>
+              <h3>Procedures</h3>
+              <ul><li><a href='./proc/append_pair.html'>append_pair</a></li><li><a href='./proc/client_get_response.html'>client_get_response</a></li><li><a href='./proc/client_header_callback.html'>client_header_callback</a></li><li><a href='./proc/client_response_callback.html'>client_response_callback</a></li><li><a href='./interface/client_type.html'>client_type</a></li><li><a href='./proc/get_pair_value.html'>get_pair_value</a></li><li><a href='./proc/header_value.html'>header_value</a></li><li><a href='./proc/new_client.html'>new_client</a></li><li><a href='./proc/new_request.html'>new_request</a></li><li><a href='./proc/pair_has_name.html'>pair_has_name</a></li></ul>
+            </div>
+            <div>
+              <ul>
+                <li><a href="./lists/procedures.html"><em>All procedures&hellip;</em></a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-xs-6 col-sm-3">
+            <div>
+              <h3>Derived Types</h3>
+              <ul><li><a href='./type/client_type.html'>client_type</a></li><li><a href='./type/pair_type.html'>pair_type</a></li><li><a href='./type/request_type.html'>request_type</a></li><li><a href='./type/response_type.html'>response_type</a></li></ul>
+            </div>
+            <div>
+              <ul>
+                <li><a href="./lists/types.html"><em>All derived types&hellip;</em></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>HTTP was developed by Rajkumar Dongre<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-08-01 01:36              </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="./js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="./js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="./tipuesearch/tipuesearch_content.js"></script>
+          <script src="./tipuesearch/tipuesearch_set.js"></script>
+          <script src="./tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
