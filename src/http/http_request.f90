@@ -1,7 +1,11 @@
+
+!!> This file defines the **`request_type`** derived type, which 
+!!> represents an **HTTP request**.
+
 module http_request
 
-    !! This module contains the definition of a request_type derived type, which 
-    !! represents an HTTP request.
+    !!> This module defines the **`request_type`** derived type, which 
+    !!> represents an **HTTP request**.
 
     use iso_fortran_env, only: int64
     use http_pair, only: pair_type
@@ -23,7 +27,7 @@ module http_request
 
     ! Request Type
     type :: request_type
-    !! Representing an HTTP request.
+        !! Representing an **HTTP `request`**.
         character(len=:), allocatable :: url
             !! The URL of the request
         character(len=:), allocatable :: data
