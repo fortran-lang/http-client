@@ -93,6 +93,7 @@ end program simple_get
 In this example, we make a GET request to the URL https://jsonplaceholder.typicode.com/todos/1 to retrieve JSON data. If the request is successful, we print the ***response code, content length, method, and content***. If the request fails, we print the ***error message***.
 
 ## **Getting Started Guides**
+> ### ***The Complete Tutorial Guide is <u> Currently in progress</u> and will be available soon.***
 1. ### **Installation** 👋
     - Installing Dependencies (Ubuntu)
     - Setting up the Package in your Project
