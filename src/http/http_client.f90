@@ -1,12 +1,15 @@
+
+!!> This file defines the **`client_type`** derived type, which handles the 
+!!> process of making **HTTP requests**. The actual HTTP requests are executed 
+!!> using the [Fortran-curl](https://github.com/interkosmos/fortran-curl) 
+!!> package as the underlying mechanism.
+
 module http_client
 
-    !! This module contains the definition of a client_type derived type, which is responsible 
-    !! for making HTTP requests.
-    !!
-    !! The client_type derived type takes a request_type object as input and uses it to make 
-    !! an HTTP request. It returns a response_type object representing the response to the request.
-    !!
-    !! This module uses the Fortran-curl package under the hood to make actual HTTP requests.
+    !!> This module defines the **`client_type`** derived type, which handles the 
+    !!> process of making **HTTP requests**. The actual HTTP requests are executed 
+    !!> using the [Fortran-curl](https://github.com/interkosmos/fortran-curl) 
+    !!> package as the underlying mechanism.
 
     use iso_fortran_env, only: int64
     use iso_c_binding, only: c_associated, c_f_pointer, c_funloc, c_loc, &
@@ -35,51 +38,55 @@ module http_client
 
     ! http_client Type
     type :: client_type
+        !!> A derived type, responsible for making **actual HTTP `request`** using
+        !!> fortran-curl at backend.
         type(request_type) :: request
     contains
         procedure :: client_get_response
     end type client_type
 
     interface client_type
+        !!> Interface for `new_client` function.
         module procedure new_client
     end interface client_type
 
     interface request
+        !!> Interface for `new_request` function.
         module procedure new_request
     end interface request
     
 contains
-    ! Constructor for request_type type.
-    ! This function creates a new request_type object and sets its URL, HTTP method, request headers, 
-    ! request data, and form data fields based on the input arguments. If the header argument is not 
-    ! provided, a default user-agent header is set to fortran-http/0.1.0. The function then creates a 
-    ! new client_type object using the request object as a parameter and sends the request to the server
-    ! using the client_get_response method. The function returns the response_type object containing the
-    ! server's response.
+
     function new_request(url, method, header, data, form, file, timeout, auth) result(response)
-        !! This function creates a new HTTP request object of the request_type type and sends 
-        !! the request to the server using the client_type object. The function takes the URL, 
-        !! HTTP method, request headers, request data, and form data as input arguments and returns 
-        !! a response_type object containing the server's response.
+    
+        !!> This function create a `request_type` object and populates it.
+        !!> The function returns the `response_type` object containing the
+        !!> **server's response**.
+        !!____
+        !!> #### Note :
+        !!> If the `header` argument is not provided, **default `user-agent`
+        !!> header is set to `http-client/0.1`**.
+    
         integer, intent(in), optional :: method
-            !! An optional integer argument that specifies the HTTP method to use for the request. 
-            !! The default value is 1, which corresponds to the HTTP_GET method.
+            !! Specifies the HTTP `method` to use for the request. 
+            !! The **default value is 1**, which corresponds to the **`HTTP_GET`** method.
         character(len=*), intent(in) :: url
-            !! An character(len=*) argument that specifies the URL of the server.
+            !! Specifies the **`URL`** of the server.
         character(len=*), intent(in), optional :: data
-            !! An optional character(len=*) argument that specifies the data to send in the request body.
+            !! Specifies the **`data`** that needs to be sent to the server.
         type(pair_type), intent(in), optional :: header(:)
-            !! An optional array of pair_type objects that specifies the request headers to send to the server.
+            !! Specifies the **request `headers`** that need to be sent to the server.
         type(pair_type), intent(in), optional :: form(:)
-            !! An optional array of pair_type objects that specifies the form data to send in the request body.
+            !! Specifies the **`form data`** that needs to be sent to the server.
         type(pair_type), intent(in), optional :: file
-            !! An optional pair_type object that specifies the file data to send in the request body.
+            !! Specifies the **`file`** that needs to be sent to the server.
         integer, intent(in), optional :: timeout
-            !! Timeout value for the request in seconds
+            !! **`Timeout`** value for the request in **seconds**.
         type(pair_type), intent(in), optional :: auth
-            !! An optional pair_type object that stores the username and password for Authentication
+            !! stores the `username` and `password` for **`authentication`** purposes.
         type(response_type) :: response
-            !! A response_type object containing the server's response.
+            !! Stores the server's **`response`**.
+
         type(request_type) :: request
         type(client_type) :: client
         integer :: i
@@ -98,6 +105,7 @@ contains
               call append_pair(request%header, 'user-agent', 'http-client/'//VERSION_STRING)
             end if
         else
+            ! Set default request headers.
             request%header = [pair_type('user-agent', 'http-client/'//VERSION_STRING)]
         end if
 
@@ -129,28 +137,30 @@ contains
         response = client%client_get_response()
     end function new_request
 
-    ! Constructor for client_type type.
-    ! This function creates a new client_type object and sets its request field to the input request 
-    ! object. The resulting client_type object can be used to send the HTTP request to the server 
-    ! using the client_get_response method.
     function new_client(request) result(client)
-        !! This function creates a new client_type object and sets its request field 
-        !! based on the input request_type object.
+
+        !!> This is the constructor for the `client_type` derived type.
+        
         type(request_type), intent(in) :: request
-            !! An in argument of the request_type type that specifies the HTTP request to send.
+            !! Specifies the **HTTP `request`** to send.
         type(client_type) :: client
-            !! A client_type object containing the request field set to the input request object.
+            !! A `client_type` object containing the `request` field set to the input `request` object.
 
         client%request = request
     end function new_client
 
     function client_get_response(this) result(response)
-        !! This function sends an HTTP request to a server using the libcurl library and returns the 
-        !! server's response as a response_type object.
+        
+        !!> This function sends an HTTP `request` to a server using the 
+        !!> [fortran-curl](https://github.com/interkosmos/fortran-curl) package 
+        !!> and stores the server's response in a `response_type` 
+        !!> object.
+
         class(client_type), intent(inout) :: this
-            !! An inout argument of the client_type class that specifies the HTTP request to send.
+            !! Contains the HTTP `request` to send.
         type(response_type), target :: response
-            !! A response_type object containing the server's response.
+            !! Contains the **server's response**.
+
         type(c_ptr) :: curl_ptr, header_list_ptr
         integer :: rc, i
         
@@ -217,25 +227,25 @@ contains
       
     end function client_get_response
     
-    ! This subroutine takes a request object containing a list of name-value pairs 
-    ! representing the form data. It iterates over the list and URL-encodes each 
-    ! name and value using the curl_easy_escape function, which replaces special 
-    ! characters with their corresponding escape sequences.
-    ! The encoded name-value pairs are concatenated into a single string, separated 
-    ! by '&' characters. The resulting string is stored in the form_encoded_str field
-    ! of the request object.
     function prepare_form_encoded_str(curl_ptr, request) result(form_encoded_str)
-        !! This subroutine converts the request%form data into URL-encoded name-value pairs
-        !! and stores the result in the request%form_encoded_str variable. The resulting
-        !! string is used as the HTTP request body with the application/x-www-form-urlencoded
-        !! content type to send data as name-value pairs.
+        
+        !!> This subroutine converts the `request%form` into a **URL-encoded name-value 
+        !!> string** and returns it.
+
+        ! This subroutine takes a request object containing a list of name-value pairs 
+        ! representing the form data. It iterates over the list and URL-encodes each 
+        ! name and value using the curl_easy_escape function, which replaces special 
+        ! characters with their corresponding escape sequences.
+        ! The encoded name-value pairs are concatenated into a single string, separated 
+        ! by '&' characters. The resulting string is returned
+
         type(c_ptr), intent(out) :: curl_ptr
-            !! A C pointer type that is used in the curl_easy_escape function to escape 
-            !! special characters in the form data.
+            !! Pointer to the `curl` handler.
         type(request_type), intent(inout) :: request
-            !! An inout argument of the request_type type, which contains the form data to be
-            !! encoded and the form_encoded_str variable to store the result.
+            !! The HTTP `request` to send, which includes the `form` data to be encoded.
         character(:), allocatable :: form_encoded_str
+            !! Stores the **URL Encoded string**.
+        
         integer :: i
         if(allocated(request%form)) then
             do i=1, size(request%form)
@@ -252,17 +262,22 @@ contains
         end if
     end function prepare_form_encoded_str
 
-    ! This subroutine prepares a linked list of headers for an HTTP request using the libcurl library. 
-    ! The function takes an array of pair_type objects that contain the key-value pairs of the headers 
-    ! to include in the request. The subroutine iterates over the array and constructs a string for each 
-    ! header in the format "key:value". The subroutine then appends each string to the linked list using 
-    ! the curl_slist_append function. The resulting linked list is returned via the header_list_ptr argument.
     subroutine prepare_request_header_ptr(header_list_ptr, req_headers)
-        !! This subroutine prepares a linked list of headers for an HTTP request using the libcurl library.
+        
+        !!> This subroutine prepares `headers` in required format(Linked list) for an HTTP request.
+        !!____
+        !!> This subroutine prepares a **linked list** of `headers` for an HTTP request using the 
+        !!> [fortran-curl](https://github.com/interkosmos/fortran-curl) package. 
+        !!> The function takes an array of `pair_type` objects(i.e. `req_headers`) that contain the  
+        !!> **key-value** pairs of the headers to include in the request.
+        !!> It iterates over the array and constructs a string for each header in the format **`key:value`**.
+        !!> The subroutine then appends each string to the linked list using the `curl_slist_append` function.
+        !!> The resulting linked list is returned via the `header_list_ptr` argument.
+        
         type(c_ptr), intent(out) :: header_list_ptr
-            !! An out argument of type c_ptr that is allocated and set to point to a linked list of headers.
+            !! A `Pointer` that is allocated and points to a linked list of headers.
         type(pair_type), allocatable, intent(in) :: req_headers(:)
-            !! An in argument of type pair_type array that specifies the headers to include in the request.
+            !! The `headers` to be included in the request.
         character(:), allocatable :: h_name, h_val, final_header_string
         integer :: i
 
@@ -275,16 +290,20 @@ contains
     end subroutine prepare_request_header_ptr
 
     function set_method(curl_ptr, method, response) result(status)
-        !! This function sets the HTTP method for a curl handle based on the input method 
-        !! integer and returns the status of the curl_easy_setopt function call.
+        !!> This function sets the **HTTP `method`** for the request.
+        !!____
+        !!#### **The `method` argument can take one of the following values:**
+        !!> `HTTP_GET`, `HTTP_HEAD`, `HTTP_POST`, `HTTP_PUT`, `HTTP_DELETE`, 
+        !!> `HTTP_PATCH`. If any other value is provided, an **error will be thrown**.
+
         type(c_ptr), intent(out) :: curl_ptr
-            !! An out argument of type c_ptr that is set to point to a new curl handle.
+            !! Pointer to the `curl` handler.
         integer, intent(in) :: method
-            !! An in argument of type integer that specifies the HTTP method to use.
+            !! Specifies the HTTP `method` to use.
         type(response_type), intent(out) :: response
-            !! An out argument of type response_type that is updated with the HTTP method string.
+            !! The HTTP `response` from the server.
         integer :: status
-            !! An integer value representing the status of the curl_easy_setopt function call.
+            !! The `status` of setting HTTP method.
 
         select case(method)
         case(1)
@@ -311,14 +330,15 @@ contains
     end function set_method
 
     function set_timeout(curl_ptr, timeout) result(status)
-        !! This function sets the timeout value (in seconds). If the timeout value 
-        !! is less than zero, it is ignored and a success status is returned. 
+        !!> This function sets the `timeout` value **(in seconds)**. 
+        !!>
+        !!> If the `timeout` value is **less than zero**, it is ignored and a success status is returned. 
         type(c_ptr), intent(out) :: curl_ptr
-            !! Pointer to the curl handle.
+            !! Pointer to the `curl` handle.
         integer(kind=int64), intent(in) :: timeout
-            !! Timeout seconds for request.
+            !! `Timeout` seconds for request.
         integer :: status
-            !! Status code indicating whether the operation was successful.
+            !! `Status code` indicating whether the operation was successful.
         if(timeout < 0) then
             status = 0
         else
@@ -329,14 +349,27 @@ contains
         end if
     end function set_timeout
 
-    ! The set_body function determines the type of data to include in the request body 
-    ! based on the inputs provided. If data is provided, it is sent as the body of the 
-    ! request. If form is provided without a file, the form data is URL encoded and sent 
-    ! as the body of the request. If file is provided without form, the file is sent 
-    ! using a multipart/form-data header. If both form and file are provided, the file 
-    ! takes priority and the form data along with file is sent as part of the multipart/form-data 
-    ! body. If data, form, and file are all provided, only data is sent and the form and file 
+    ! This function determines the type of data to include in the `request body` 
+    ! based on the inputs provided. 
+    
+    ! If `data` member is provided, it is sent as the body of the 
+    ! request. If along with `data` member `file` or `form` or both `file` and `form` members 
+    ! are provided then both `form` and `file` member will be ignored and only `data` member will be
+    ! sent in request body. `data` argument takes the highest priority.
+
+    ! If only `file` member is provided then `file` is sent as the body of the request. and 
+    ! a default `Content-type` header with value `multipart/form-data` will be set, if no `Content-type`
+    ! header is provided. If both `form` and `file` members are provided, then `file` 
+    ! and the `form` is sent as part of the body. having default `Content-type` header with value `multipart/form-data`
+    ! if no `Content-type` header is provided.
+    ! If data, form, and file are all provided, only data is sent and the form and file 
     ! inputs are ignored.
+    !
+    ! If only `form` member is provided then `form` data is URL encoded and sent 
+    ! as the body of the request. and a default `Content-type` header with value 
+    ! `application/x-www-form-urlencoded` will be set, if no `Content-type` header is
+    ! provided 
+    ! 
     ! 
     ! data -> data
     ! form -> form
@@ -346,13 +379,55 @@ contains
     ! 
     ! Note : At a time only one file can be send
     function set_body(curl_ptr, request) result(status)
-        !! The set_body function sets the request body.
+        !!> The function sets the request `body`.
+        !!____
+
+        !!> This function determines and set the type of data to include in the `request body` 
+        !!> based on the inputs provided to the `request()` procedure.
+
+        !!> The function handles different combinations of `data`, `file`, and `form` members 
+        !!> to decide the content and the default header for the request body.
+
+        !!> - If `data` member is provided, it takes the highest priority and is sent as the 
+        !!> body of the request. Any other provided `file` or `form` members will be ignored, 
+        !!> and only the `data` member will be included in the request body.
+
+        !!> - If only the `file` member is provided, the `file` is sent as the body of the request. 
+        !!> If no `Content-type` header is provided, a default `Content-type` header with value 
+        !!> `multipart/form-data` will be set.
+
+        !!> - If only the `form` member is provided, the `form` data is URL encoded and sent as 
+        !!> the body of the request. If no `Content-type` header is provided, a default `Content-type` 
+        !!> header with value `application/x-www-form-urlencoded` will be set.
+
+        !!> - If both `form` and `file` members are provided, both `form` and `file` data are included 
+        !!> as part of the request body. A default `Content-type` header with value `multipart/form-data` 
+        !!> will be set if no `Content-type` header is provided.
+
+        !!> - If `data`, `form`, and `file` are all provided, only `data` is sent, and the `form` and `file`
+        !!> inputs are ignored.
+
+        !!> ### **Combination Behavior Table**
+
+
+        !!> | Passed Arguments   | Request Body                    | Default Header                | Behavior                                                |
+        !! |--------------------|---------------------------------|-------------------------------|---------------------------------------------------------|
+        !! | data               | data                            | None                          | The `data` is sent as the body of the request.         |
+        !! | file               | file                            | multipart/form-data           | The `file` is sent as the body of the request with the default header.  |
+        !! | form               | Form data URL encoded           | application/x-www-form-urlencoded | The `form` data is sent as the body of the request with the default header. |
+        !! | data + file        | data (file ignored)             | None                          | The `file` member is ignored, and the `data` is sent as the body of the request. |
+        !! | data + form        | data (form ignored)             | None                          | The `form` member is ignored, and the `data` is sent as the body of the request. |
+        !! | file + form        | both file and form              | multipart/form-data           | Both `form` and `file` are sent as part of the request. |
+        !! | data + file + form | data (form and file ignored)    | None                          | Both `form` and `file` members are ignored, and only the `data` is sent as the body of the request. |
+        
+        !!> Note: If custom headers are provided in the `headers` parameter, they will be used. Otherwise, default headers will be applied as mentioned in the table.
+
         type(c_ptr), intent(out) :: curl_ptr
-            !! An out argument of type c_ptr that is set to point to a new curl handle.
+            !! Pointer to the `curl` handle.
         type(request_type), intent(inout) :: request
             !! The HTTP request
         integer :: status
-            !! An integer value representing the status of the curl_easy_setopt function call.
+            !! An integer value representing the status of the function call.
         
         integer :: i
         type(c_ptr) :: mime_ptr, part_ptr
@@ -400,7 +475,9 @@ contains
     end function set_body
 
     function set_postfields(curl_ptr, data) result(status)
-        !! Set the data to be sent in the HTTP POST request body.
+        !!> Set the data to be sent in the HTTP POST request body.
+        !!____
+        !!> Use as helper function by `set_body` procedure to set request body
         type(c_ptr), intent(inout) :: curl_ptr
             !! Pointer to the CURL handle.
         character(*), intent(in), target :: data
@@ -414,14 +491,15 @@ contains
     end function set_postfields
 
     function set_auth(curl_ptr, request) result(status)
-        !! Set the user name and password for Authentication. It sends the user name 
-        !! and password over the network in plain text, easily captured by others.
+        !!> Set the user name and password for Authentication. 
+        !!_____
+        !!> It sends the user name and password over the network in plain text, easily captured by others.
         type(c_ptr), intent(out) :: curl_ptr
-            !! An out argument of type c_ptr that is set to point to a new curl handle.
+            !! Pointer to the CURL handle.
         type(request_type), intent(inout) :: request
             !! The HTTP request
         integer :: status
-            !! An integer value representing the status of the curl_easy_setopt function call.
+            !! An integer indicating whether the operation was successful (0) or not (non-zero).
 
         if(allocated(request%auth)) then
             status = curl_easy_setopt(curl_ptr, CURLOPT_HTTPAUTH, CURLAUTH_BASIC)
@@ -433,28 +511,29 @@ contains
         end if
     end function set_auth
 
-    ! This function is a callback function used by the libcurl library to handle HTTP responses. It is 
-    ! called for each chunk of data received from the server and appends the data to a response_type object. 
-    ! The function takes four input arguments: ptr, size, nmemb, and client_data. ptr is a pointer to the 
-    ! received data buffer, size specifies the size of each data element, nmemb specifies the number of data 
-    ! elements received, and client_data is a pointer to a response_type object. The function uses 
-    ! c_f_pointer to convert the C pointer to a Fortran pointer and appends the received data to the 
-    ! content field of the response_type object. The function returns an integer(kind=c_size_t) value 
-    ! representing the number of bytes received.
     function client_response_callback(ptr, size, nmemb, client_data) bind(c)
-        !! This function is a callback function used by the libcurl library to handle HTTP responses. 
-        !! It is called for each chunk of data received from the server and appends the data to a 
-        !! response_type object.
+        !!> This function is a `callback` function used by the fortran-curl package to handle HTTP responses. 
+        !!> It is called for each `chunk` of data received from the server and appends the data to a 
+        !!> `response_type` object.
+        !!>_____
+        !!> It is called for each `chunk` of data received from the server and appends the data to a `response_type` 
+        !!> object passed(i.e `client_data`). The function takes four input arguments: `ptr`, `size`, `nmemb`,  
+        !!> and `client_data`. `ptr` is a pointer to the received data buffer, `size` specifies the size of each 
+        !!> data element, `nmemb` specifies the number of data elements received, and `client_data` is a pointer to  
+        !!> a `response_type` object. The function uses `c_f_pointer` to convert the C pointer to a Fortran pointer and 
+        !!> appends the received data to the `content` field of the `response_type` object. The function returns an integer
+        !!> value representing the **number of bytes received.**
+        
         type(c_ptr), intent(in), value :: ptr 
-            !! An in argument of type c_ptr that points to the received data buffer.
+            !! Pointer to the CURL handle.
         integer(kind=c_size_t), intent(in), value :: size 
-            !! An in argument of type integer(kind=c_size_t) that specifies the size of each data element.
+            !! Specifies the size of each data element.
         integer(kind=c_size_t), intent(in), value :: nmemb
-            !! An in argument of type integer(kind=c_size_t) that specifies the number of data elements received.
+            !! Specifies the number of data elements received.
         type(c_ptr), intent(in), value :: client_data
-            !!  An in argument of type c_ptr that points to a response_type object.
+            !!  Points to a response_type object.
         integer(kind=c_size_t) :: client_response_callback 
-            !! An integer(kind=c_size_t) value representing the number of bytes received.
+            !! The number of bytes received.
         type(response_type), pointer :: response 
         character(len=:), allocatable :: buf
       
@@ -481,19 +560,20 @@ contains
     end function client_response_callback
 
     function client_header_callback(ptr, size, nmemb, client_data) bind(c)
-        !! This function is a callback function used by the libcurl library to handle HTTP headers. 
-        !! It is called for each header received from the server and stores the header in an array of 
-        !! pair_type objects in a response_type object.
+        !!> This function is a `callback` function used by the `fortran-curl` package to handle HTTP headers. 
+        !!>_____
+        !!> It is called for each header received from the server and stores the header in an `header` member 
+        !!> of `response_type` object.
         type(c_ptr), intent(in), value :: ptr 
-            !! An in argument of type c_ptr that points to the received header buffer.
+            !! Pointer to the CURL handle. that points to the received header buffer.
         integer(kind=c_size_t), intent(in), value :: size 
-            !!  An in argument of type integer(kind=c_size_t) that specifies the size of each header element.
+            !!  Specifies the size of each header element.
         integer(kind=c_size_t), intent(in), value :: nmemb
-            !! An in argument of type integer(kind=c_size_t) that specifies the number of header elements received.
+            !! Specifies the number of header elements received.
         type(c_ptr), intent(in), value :: client_data
-            !! An in argument of type c_ptr that points to a response_type object.
+            !! Pointer to a `response_type` object.
         integer(kind=c_size_t) :: client_header_callback 
-            !! An integer(kind=c_size_t) value representing the number of bytes received.
+            !! The number of bytes received.
         type(response_type), pointer :: response 
         character(len=:), allocatable :: buf, h_name, h_value
         integer :: i

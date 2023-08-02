@@ -1,7 +1,11 @@
+
+!!> This file defines the **`response_type`** derived type, which 
+!!> represents an **HTTP response** from a web server.
+
 module http_response
 
-    !! This module contains the definition of a response_type derived type, which 
-    !! represents an HTTP response.
+    !!> This module defines the **`response_type`** derived type, which 
+    !!> represents an **HTTP response** from a web server.
 
     use, intrinsic :: iso_fortran_env, only: int64
     use http_pair, only: pair_type, get_pair_value
@@ -14,7 +18,7 @@ module http_response
 
     ! Response Type
     type :: response_type
-    !! Representing an HTTP response.
+        !!> Representing an **HTTP `response`**.
         character(len=:), allocatable :: url
             !! The URL of the request
         character(len=:), allocatable :: content
@@ -36,16 +40,19 @@ module http_response
     end type response_type
 
 contains
+    
     pure function header_value(this, name) result(val)
-        !! The header_value function takes a header name string as input and returns 
-        !! the corresponding value as a string from a response_type object's 
-        !! header array.
+        
+        !!> This function is used to retrieve the `value` of a response header. 
+        !!> It takes the response header `name` as input and returns the corresponding 
+        !!> **header value**.
+        
         class(response_type), intent(in) :: this
             !! An object representing the HTTP response.
         character(*), intent(in) :: name
-            !! The name of the header value to be retrieved.
+            !! This refers to the name of the header for which we want to retrieve the value.
         character(:), allocatable :: val
-            !! The value of the specified name in the HTTP response header.
+            !! This denotes the value of the specified header name.
         
         val = get_pair_value(this%header, name)
     end function header_value

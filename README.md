@@ -3,23 +3,54 @@
 
 The `http` Fortran package provides a **simple and convenient** way to make HTTP requests and retrieve responses. It aims to **simplify** the process of interacting with web services by providing a high-level API.
 
-Currently package includes the following features:
+___
+## **Features**
 
-* Sending `GET` request (`POST`, `PUT`, `DELETE`, and other HTTP requests coming soon).
-* Handling response data, including status code, content length, method, headers and content.
-* Support for custom headers and request parameters.
-* Error handling for unsuccessful requests.
+ The package includes the following features:
 
-## **Prerequisites**
-Before building the library, ensure that you have the necessary dependencies installed. On `Ubuntu`, you need to install the curl development headers. Use the following command:
+ 1. #### **Sending HTTP Requests:**
+    - **`GET`**: Retrieve data from the server.
+    - **`POST`**: Submit data to be processed by the server.
+    - **`PUT`**: Replace or create resources on the server.
+    - **`DELETE`**: Remove resources from the server.
+    - **`PATCH`**: Partial updates to resources.
+    - **`HEAD`**: Retrieve response headers without the response content.
+
+ 2. #### **Data Support:**
+    - Send any type of data with requests, including support for `file` uploads and `form data`.
+    
+ 3. #### **Response Handling:**
+    - Retrieve response `content`.
+    - Get the HTTP `status code` returned by the server.
+    - Fetch the `length` of the response content.
+    - Access response `headers`.
+  
+ 4. #### **Custom Headers:**
+    - Include `custom headers` in requests to the server.
+
+ 5. #### **Error Handling:**
+    - Detect and handle unsuccessful requests gracefully, with informative `error messages`.
+
+ 6. #### **Request Timeout:**
+    - Set a maximum time allowed for a request to complete, improving responsiveness.
+
+ 7. #### **Authentication:**
+    - Authenticate requests to protected resources using standard authentication methods.
+
+## **Installation**
+
+ Before building the `http-client` library, ensure that you have the necessary dependencies installed. On Ubuntu, you need to install the curl development headers. Use the following command:
+
 ```
 sudo apt install -y libcurl4-openssl-dev
 ```
-## **fpm usage**
-To use `http` within your fpm project, add the following to your package manifest file (fpm.toml):
+
+ To use `http-client` within your fpm project, add the following to your package `fpm.toml` file:
+
 ```toml
 [dependencies]
-fhash = { git = "https://github.com/fortran-lang/http-client.git" }
+http = { git = "https://github.com/fortran-lang/http-client.git" }
+stdlib = "*"
 ```
 ## **Usage Example**
 The following example demonstrates how to use the http package to make a **Simple GET request** and process the response
@@ -61,6 +92,40 @@ end program simple_get
 ```
 In this example, we make a GET request to the URL https://jsonplaceholder.typicode.com/todos/1 to retrieve JSON data. If the request is successful, we print the ***response code, content length, method, and content***. If the request fails, we print the ***error message***.
 
+## **Getting Started Guides**
+> ### ***The Complete Tutorial Guide is <u> Currently in progress</u> and will be available soon.***
+1. ### **Installation** 👋
+    - Installing Dependencies (Ubuntu)
+    - Setting up the Package in your Project
+
+2. ### **Making HTTP Requests** 🚀
+    - **Sending `GET` Requests**
+        - *Accessing Response `Content`*
+        - *Retrieving `Status Codes`*
+        - *Getting Response `Headers`*
+        - *Extracting `Content Length`*
+    - **Sending `POST` Requests**
+        - *Sending `Data` with Requests*
+        - *Sending `Form Data`*
+        - *Uploading `File`*
+    - **Sending `PUT` Requests**
+    - **Sending `PATCH` Requests**
+    - **Sending `DELETE` Requests**
+    - **Sending `HEAD` Requests**
+
+3. ### **Customizing Requests** ✏️
+    - Sending Custom **Headers**
+    - Setting Request **Timeout**
+    - **Authentication** Option
+
+4. ### **Error Handling** 🤨
+    - Handling Unsuccessful Requests
+    - Displaying Error Messages
+
+5. ### **Real Projects** 🤖
+    -  **GitHub organization analyzer** : Retrieve valuable information about the organization repositories
+
+
 ## **Contributing to project**
 Thank you for your interest in contributing to the `http` Fortran package! Contributions from the community are valuable in improving and enhancing the functionality of the package. This section provides a guide on how to get the code, build the library, and run examples and tests.
 
@@ -99,7 +164,19 @@ fpm test
 ```
 Running the tests will validate the behavior of the package and help identify any issues or regressions.
 
-### Supported compilers
+### **Generating API Documentation**
+
+Before generating API documentation, ensure that you have FORD installed on your system.
+
+**Installation link**: [https://github.com/Fortran-FOSS-Programmers/ford#installation](https://github.com/Fortran-FOSS-Programmers/ford#installation)
+
+Once FORD is set up, execute the following command to build the API documentation:
+
+```bash
+ford ford.md
+```
+
+### **Supported compilers**
 
 http-client is known to work with the following compilers:
 
