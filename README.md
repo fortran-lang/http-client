@@ -1,10 +1,10 @@
 # **http**
-## **Overview**
+## **Overview** 🤗
 
 The `http` Fortran package provides a **simple and convenient** way to make HTTP requests and retrieve responses. It aims to **simplify** the process of interacting with web services by providing a high-level API.
 
 ___
-## **Features**
+## **Features** 🔥
 
  The package includes the following features:
 
@@ -37,7 +37,7 @@ ___
  7. #### **Authentication:**
     - Authenticate requests to protected resources using standard authentication methods.
 
-## **Installation**
+## **Installation** ⚙️
 
  Before building the `http-client` library, ensure that you have the necessary dependencies installed. On Ubuntu, you need to install the curl development headers. Use the following command:
 
@@ -52,7 +52,7 @@ sudo apt install -y libcurl4-openssl-dev
 http = { git = "https://github.com/fortran-lang/http-client.git" }
 stdlib = "*"
 ```
-## **Usage Example**
+## **Usage Example** 🔧
 The following example demonstrates how to use the http package to make a **Simple GET request** and process the response
 
 ```fortran
@@ -92,41 +92,53 @@ end program simple_get
 ```
 In this example, we make a GET request to the URL https://jsonplaceholder.typicode.com/todos/1 to retrieve JSON data. If the request is successful, we print the ***response code, content length, method, and content***. If the request fails, we print the ***error message***.
 
-## **Getting Started Guides**
-> ### ***The Complete Tutorial Guide is <u> Currently in progress</u> and will be available soon.***
-1. ### **Installation** 👋
-    - Installing Dependencies (Ubuntu)
-    - Setting up the Package in your Project
-
-2. ### **Making HTTP Requests** 🚀
-    - **Sending `GET` Requests**
-        - *Accessing Response `Content`*
-        - *Retrieving `Status Codes`*
-        - *Getting Response `Headers`*
-        - *Extracting `Content Length`*
-    - **Sending `POST` Requests**
-        - *Sending `Data` with Requests*
-        - *Sending `Form Data`*
-        - *Uploading `File`*
-    - **Sending `PUT` Requests**
-    - **Sending `PATCH` Requests**
-    - **Sending `DELETE` Requests**
-    - **Sending `HEAD` Requests**
-
-3. ### **Customizing Requests** ✏️
-    - Sending Custom **Headers**
-    - Setting Request **Timeout**
-    - **Authentication** Option
-
-4. ### **Error Handling** 🤨
-    - Handling Unsuccessful Requests
-    - Displaying Error Messages
-
-5. ### **Real Projects** 🤖
-    -  **GitHub organization analyzer** : Retrieve valuable information about the organization repositories
+## **Getting Started Guides** 👋
 
 
-## **Contributing to project**
+### **Table of contents:** 
+
+1. ### [**Installation** 🌈](tutorial/tuotrial.md#installation)
+
+2. ### [**Making HTTP Requests** 🚀](tutorial/tuotrial.md#making-http-requests-f09f9a80-1)
+    - [**Sending `GET` Requests**](tutorial/tuotrial.md#sending-get-requests)
+        - [*Accessing Response `Content`*](tutorial/tuotrial.md#accessing-response-content)
+        - [*Extracting `Content Length`*](tutorial/tuotrial.md#extracting-content-length)
+        - [*Retrieving `Status Codes`*](tutorial/tuotrial.md#retrieving-status-codes)
+        - [*Handling `Errors`*](tutorial/tuotrial.md#handling-errors)
+        - [*Getting Response `Headers`*](tutorial/tuotrial.md#getting-response-headers)
+        - [*Understanding `pair_type` derived type*](tutorial/tuotrial.md#understanding-pair_type-derived-type)
+        - [*Sending Custom `Headers`*](tutorial/tuotrial.md#sending-custom-headers)
+        - [*Setting Request `Timeout`*](tutorial/tuotrial.md#setting-request-timeout)
+        - [*Setting `Authentication`*](tutorial/tuotrial.md#setting-authentication)
+    - [**Sending `POST` Requests**](tutorial/tuotrial.md#sending-post-request)
+        - [*Sending Data using `data`*](tutorial/tuotrial.md#sending-data-using-data)
+        - [*Sending Data using `form`*](tutorial/tuotrial.md#sending-data-using-form)
+        - [*Sending Data using `file`*](tutorial/tuotrial.md#sending-data-using-file)
+    - [**Sending `PUT` Requests**](tutorial/tuotrial.md#sending-put-requests)
+    - [**Sending `PATCH` Requests**](tutorial/tuotrial.md#sending-patch-requests)
+    - [**Sending `DELETE` Requests**](tutorial/tuotrial.md#sending-delete-requests)
+    - [**Sending `HEAD` Requests**](tutorial/tuotrial.md#sending-head-requests)
+
+3. ### [**Real Projects** 🤖](tutorial/tuotrial.md#real-projects-f09fa496-1)
+
+## **Projects Currently using `http` package** 🥳
+
+* **[github-org-analyzer](https://github.com/rajkumardongre/github-org-analyzer):** This Fortran project **provides procedures to analyze GitHub organizations and retrieve valuable information about their repositories**. By leveraging the power of the `http-client` package, this analyzer fetches data from the GitHub API to generate insightful reports.
+
+    *~By [Rajkumar Dongre (rajkumardongre)](https://github.com/rajkumardongre)*
+* **[fortran-xkcd](https://github.com/rajkumardongre/fortran-xkcd/tree/http_client_version):** An fpm example project written in Fortran 2018 that displays the latest xkcd comic inside an X window. As a limitation, only images in PNG format are supported (no JPEG). The alt text will be printed to console.
+
+    *~By [Philipp (interkosmos)](https://github.com/interkosmos)*
+
+* **[foropenai](https://github.com/gha3mi/foropenai):** A Fortran library for OpenAI API.
+
+    *~By [AliG (gha3mi)](https://github.com/gha3mi)*
+
+If you're utilizing the `http` package in your Fortran project and would like to be included on this list, we welcome you to contribute by creating a pull request (PR) and adding your project details. 
+
+Let's build it together! 🤝
+
+## **Contributing to project** 🌱
 Thank you for your interest in contributing to the `http` Fortran package! Contributions from the community are valuable in improving and enhancing the functionality of the package. This section provides a guide on how to get the code, build the library, and run examples and tests.
 
 ### **Get the code**
@@ -196,4 +208,4 @@ When contributing to the http Fortran package, please keep the following guideli
 
 We appreciate your contributions and look forward to your valuable input in improving the http Fortran package.
 
-Happy coding!
+Happy coding!👋
