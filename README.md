@@ -1,14 +1,14 @@
-# **http**
-## **Overview** 🤗
+# http
+## Overview 🤗
 
 The `http` Fortran package provides a **simple and convenient** way to make HTTP requests and retrieve responses. It aims to **simplify** the process of interacting with web services by providing a high-level API.
 
 ___
-## **Features** 🔥
+## Features 🔥
 
  The package includes the following features:
 
- 1. #### **Sending HTTP Requests:**
+ 1. #### Sending HTTP Requests:
     - **`GET`**: Retrieve data from the server.
     - **`POST`**: Submit data to be processed by the server.
     - **`PUT`**: Replace or create resources on the server.
@@ -16,28 +16,28 @@ ___
     - **`PATCH`**: Partial updates to resources.
     - **`HEAD`**: Retrieve response headers without the response content.
 
- 2. #### **Data Support:**
+ 2. #### Data Support:
     - Send any type of data with requests, including support for `file` uploads and `form data`.
     
- 3. #### **Response Handling:**
+ 3. #### Response Handling:
     - Retrieve response `content`.
     - Get the HTTP `status code` returned by the server.
     - Fetch the `length` of the response content.
     - Access response `headers`.
   
- 4. #### **Custom Headers:**
+ 4. #### Custom Headers:
     - Include `custom headers` in requests to the server.
 
- 5. #### **Error Handling:**
+ 5. #### Error Handling:
     - Detect and handle unsuccessful requests gracefully, with informative `error messages`.
 
- 6. #### **Request Timeout:**
+ 6. #### Request Timeout:
     - Set a maximum time allowed for a request to complete, improving responsiveness.
 
- 7. #### **Authentication:**
+ 7. #### Authentication:
     - Authenticate requests to protected resources using standard authentication methods.
 
-## **Installation** ⚙️
+## Installation ⚙️
 
  Before building the `http-client` library, ensure that you have the necessary dependencies installed. On Ubuntu, you need to install the curl development headers. Use the following command:
 
@@ -52,7 +52,7 @@ sudo apt install -y libcurl4-openssl-dev
 http = { git = "https://github.com/fortran-lang/http-client.git" }
 stdlib = "*"
 ```
-## **Usage Example** 🔧
+## Usage Example 🔧
 The following example demonstrates how to use the http package to make a **Simple GET request** and process the response
 
 ```fortran
@@ -92,36 +92,36 @@ end program simple_get
 ```
 In this example, we make a GET request to the URL https://jsonplaceholder.typicode.com/todos/1 to retrieve JSON data. If the request is successful, we print the ***response code, content length, method, and content***. If the request fails, we print the ***error message***.
 
-## **Getting Started Guides** 👋
+## Getting Started Guides 👋
 
 
-### **Table of contents:** 
+### Table of contents: 
 
-1. ### [**Installation** 🌈](tutorial/tuotrial.md#installation)
+- ### [Installation 🌈](tutorial/tutorial.md#installation)
 
-2. ### [**Making HTTP Requests** 🚀](tutorial/tuotrial.md#making-http-requests-f09f9a80-1)
-    - [**Sending `GET` Requests**](tutorial/tuotrial.md#sending-get-requests)
-        - [*Accessing Response `Content`*](tutorial/tuotrial.md#accessing-response-content)
-        - [*Extracting `Content Length`*](tutorial/tuotrial.md#extracting-content-length)
-        - [*Retrieving `Status Codes`*](tutorial/tuotrial.md#retrieving-status-codes)
-        - [*Handling `Errors`*](tutorial/tuotrial.md#handling-errors)
-        - [*Getting Response `Headers`*](tutorial/tuotrial.md#getting-response-headers)
-        - [*Understanding `pair_type` derived type*](tutorial/tuotrial.md#understanding-pair_type-derived-type)
-        - [*Sending Custom `Headers`*](tutorial/tuotrial.md#sending-custom-headers)
-        - [*Setting Request `Timeout`*](tutorial/tuotrial.md#setting-request-timeout)
-        - [*Setting `Authentication`*](tutorial/tuotrial.md#setting-authentication)
-    - [**Sending `POST` Requests**](tutorial/tuotrial.md#sending-post-request)
-        - [*Sending Data using `data`*](tutorial/tuotrial.md#sending-data-using-data)
-        - [*Sending Data using `form`*](tutorial/tuotrial.md#sending-data-using-form)
-        - [*Sending Data using `file`*](tutorial/tuotrial.md#sending-data-using-file)
-    - [**Sending `PUT` Requests**](tutorial/tuotrial.md#sending-put-requests)
-    - [**Sending `PATCH` Requests**](tutorial/tuotrial.md#sending-patch-requests)
-    - [**Sending `DELETE` Requests**](tutorial/tuotrial.md#sending-delete-requests)
-    - [**Sending `HEAD` Requests**](tutorial/tuotrial.md#sending-head-requests)
+- ### [Making HTTP Requests 🚀](tutorial/tutorial.md#making-http-requests-f09f9a80-1)
+    - [**Sending `GET` Requests**](tutorial/tutorial.md#sending-get-requests)
+        - [*Accessing Response `Content`*](tutorial/tutorial.md#accessing-response-content)
+        - [*Extracting `Content Length`*](tutorial/tutorial.md#extracting-content-length)
+        - [*Retrieving `Status Codes`*](tutorial/tutorial.md#retrieving-status-codes)
+        - [*Handling `Errors`*](tutorial/tutorial.md#handling-errors)
+        - [*Getting Response `Headers`*](tutorial/tutorial.md#getting-response-headers)
+        - [*Understanding `pair_type` derived type*](tutorial/tutorial.md#understanding-pair_type-derived-type)
+        - [*Sending Custom `Headers`*](tutorial/tutorial.md#sending-custom-headers)
+        - [*Setting Request `Timeout`*](tutorial/tutorial.md#setting-request-timeout)
+        - [*Setting `Authentication`*](tutorial/tutorial.md#setting-authentication)
+    - [**Sending `POST` Requests**](tutorial/tutorial.md#sending-post-request)
+        - [*Sending Data using `data`*](tutorial/tutorial.md#sending-data-using-data)
+        - [*Sending Data using `form`*](tutorial/tutorial.md#sending-data-using-form)
+        - [*Sending Data using `file`*](tutorial/tutorial.md#sending-data-using-file)
+    - [**Sending `PUT` Requests**](tutorial/tutorial.md#sending-put-requests)
+    - [**Sending `PATCH` Requests**](tutorial/tutorial.md#sending-patch-requests)
+    - [**Sending `DELETE` Requests**](tutorial/tutorial.md#sending-delete-requests)
+    - [**Sending `HEAD` Requests**](tutorial/tutorial.md#sending-head-requests)
 
-3. ### [**Real Projects** 🤖](tutorial/tuotrial.md#real-projects-f09fa496-1)
+- ### [Real Projects 🤖](tutorial/tutorial.md#real-projects-f09fa496-1)
 
-## **Projects Currently using `http` package** 🥳
+## Projects Currently using `http` package 🥳
 
 * **[github-org-analyzer](https://github.com/rajkumardongre/github-org-analyzer):** This Fortran project **provides procedures to analyze GitHub organizations and retrieve valuable information about their repositories**. By leveraging the power of the `http-client` package, this analyzer fetches data from the GitHub API to generate insightful reports.
 
@@ -138,10 +138,10 @@ If you're utilizing the `http` package in your Fortran project and would like to
 
 Let's build it together! 🤝
 
-## **Contributing to project** 🌱
+## Contributing to project 🌱
 Thank you for your interest in contributing to the `http` Fortran package! Contributions from the community are valuable in improving and enhancing the functionality of the package. This section provides a guide on how to get the code, build the library, and run examples and tests.
 
-### **Get the code**
+### Get the code
 To get started, follow these steps:
 
 Clone the repository using Git:
@@ -149,19 +149,19 @@ Clone the repository using Git:
 git clone https://github.com/fortran-lang/http-client
 cd http-client
 ```
-### **Prerequisites**
+### Prerequisites
 Before building the library, ensure that you have the necessary dependencies installed. On `Ubuntu`, you need to install the curl development headers. Use the following command:
 ```
 sudo apt install -y libcurl4-openssl-dev
 ```
-### **Build the library**
+### Build the library
 
 The `http` package uses **fpm** as the build system. Make sure you have fpm `version 0.8.x` or later installed. To build the library, execute the following command within the project directory:
 
 ```
 fpm build
 ```
-### **Run examples**
+### Run examples
 The http package provides example programs that demonstrate its usage. To run the examples, use the following command:
 
 ```
@@ -169,14 +169,14 @@ fpm run --example <example name>
 ```
 Executing this command will execute the example programs, allowing you to see the package in action and understand how to utilize its features.
 
-### **Run tests**
+### Run tests
  The http package includes a test suite to ensure its functionality is working as expected. To run the tests, execute the following command:
 ```
 fpm test
 ```
 Running the tests will validate the behavior of the package and help identify any issues or regressions.
 
-### **Generating API Documentation**
+### Generating API Documentation
 
 Before generating API documentation, ensure that you have FORD installed on your system.
 
@@ -188,14 +188,14 @@ Once FORD is set up, execute the following command to build the API documentatio
 ford ford.md
 ```
 
-### **Supported compilers**
+### Supported compilers
 
 http-client is known to work with the following compilers:
 
 * GFortran 11 & 12 (tested in CI)
 * Intel OneAPI ifx v2023.1.0 and ifort classic v2021.9.0
 
-### **Contributing guidelines**
+### Contributing guidelines
 
 When contributing to the http Fortran package, please keep the following guidelines in mind:
 

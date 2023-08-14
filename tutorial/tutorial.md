@@ -604,7 +604,7 @@ end program head
 
 3. # **Real Projects** 🤖
 
--  [**GitHub organization analyzer**](real_proj/github-org-analyzer.md) : 
+-  [**GitHub organization analyzer**](example-project/github-org-analyzer.md) : 
 
     This Fortran project **provides procedures to analyze GitHub organizations and retrieve valuable information about their repositories**. By leveraging the power of the `http-client` package, this analyzer fetches data from the GitHub API to generate insightful reports.
 

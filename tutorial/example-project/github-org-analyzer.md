@@ -1,21 +1,21 @@
-# **Building a [GitHub Organization Analyzer](https://github.com/rajkumardongre/github-org-analyzer) in Fortran, using `http-client`** 🚀
+# Building a [GitHub Organization Analyzer](https://github.com/rajkumardongre/github-org-analyzer) in Fortran, using `http-client` 🚀
 
 In this tutorial, we'll create a simple Fortran program that uses the [GitHub API](https://docs.github.com/en/rest?apiVersion=2022-11-28) to retrieve and display all the repositories of the [`fortran-lang`](https://github.com/fortran-lang) organization. We'll use the [`http-client`](https://github.com/fortran-lang/http-client) and [`json-fortran`](https://github.com/jacobwilliams/json-fortran) libraries to make API requests and handle JSON responses.
 
-# **Prerequisite** 🚩
+# Prerequisite 🚩
 
-Before building the GitHub Organization Analyzer library and running the program, you need to ensure that you have [`fpm`](https://fpm.fortran-lang.org/) (Fortran Package Manager) installed. Additionally, there is one dependency required for the [`http-client`](https://github.com/fortran-lang/http-client) library used in the project. Follow the steps below to set up your environment:
+Before proceeding with building the GitHub Organization Analyzer library and running the program, it's crucial to ensure that you have at least [`fpm`](https://fpm.fortran-lang.org/) v0.9.0 (Fortran Package Manager) installed. Additionally, there is a single dependency required for the [`http-client`](https://github.com/fortran-lang/http-client) library utilized in this project. Please follow the steps provided below to set up your environment:
 
-### **Step 1: Install fpm**
+### Step 1: Install fpm
 
 [`fpm`](https://fpm.fortran-lang.org/) is the Fortran Package Manager used for building and managing Fortran projects. If you do not currently have `fpm` installed, you can follow the installation instructions available on the official `fpm` repository to install version v0.9.0 or a more recent version. The installation guide can be found here: [Installation Guide](https://fpm.fortran-lang.org/install/index.html).
 
 
-### **Step 2: Install libcurl Development Headers**
+### Step 2: Install libcurl Development Headers
 
-The `http-client` library, requires the libcurl development headers to be installed. On Ubuntu-based systems, you can install the required dependencies using the following command:
+The `http-client` library requires the [`libcurl`](https://curl.se/libcurl/) development headers to be installed. On Ubuntu-based systems, you can install the required dependencies using the following command:
 
-```
+```bash
 sudo apt install -y libcurl4-openssl-dev
 ```
 
@@ -23,15 +23,15 @@ This command will install the necessary development headers for libcurl, enablin
 
 Once you have `fpm` installed and the required dependencies set up, you are ready to proceed with building and running the GitHub Organization Analyzer project.🙌
 
-# **Let's Start Building** 👨‍💻
+# Let's Start Building 👨‍💻
 
-### **Step 1: Set up the Project**
+### Step 1: Set up the Project
 
 >**Note : This requires at least fpm v0.9.0.**
 
 1. Open your terminal or command prompt and create a new directory for the project:
 
-```
+```bash
 fpm new github-org-analyzer
 cd github-org-analyzer
 ```
@@ -50,7 +50,7 @@ cd github-org-analyzer
     └── check.f90
 ```
 
-### **Step 2: Add Dependencies to `fpm.toml`**
+### Step 2: Add Dependencies to `fpm.toml`
 
 Open the `fpm.toml` file and add the following dependencies:
 
@@ -61,15 +61,7 @@ stdlib = "*"
 json-fortran = { git = "https://github.com/jacobwilliams/json-fortran.git" }
 ```
 
-### **Step 3: Build the Project**
-
-Run the following command to build the project:
-
-```
-fpm build
-```
-
-### **Step 5: Import the Libraries**
+### Step 3: Import the Libraries
 
 Open the `github-org-analyzer.f90` file in the `src` folder and import the required libraries:
 
@@ -88,7 +80,7 @@ end module github_org_analyzer
 
 * `to_string` : We use this function to convert integers to their string representations
 
-### **Step 6: Create the `print_org_repositories` Subroutine**
+### Step 4: Create the `print_org_repositories` Subroutine
 
 Now let's write the `print_org_repositories` subroutine, which fetches and prints all the repositories of the "fortran-lang" organization using the GitHub API. This subroutine utilizes the `http-client` and `json-fortran` libraries to make API requests and handle JSON responses.
 
@@ -143,43 +135,31 @@ contains
          call json%deserialize(response%content)
 
          ! Traverse Repositories and Print Names
-
+         
          ! Counter to traverse all repos one by one
-         i = 1
-
-         ! Storing the string equivalent of i in the count variable
-         count = to_string(i)
-
-         ! Fetching the name of the 1st GitHub repository, if it exists (found is set to true)
-         call json%get('['//count//'].name', value, found)
-
+         i = 0
          ! Enter the loop to traverse all repositories while they exist
-         do while(found)
-
-            ! Fetch the name of the current repository (based on the `i` counter) and check if it exists
-            call json%get('['//count//'].name', value, found)
-
-            ! If the repository name exists (`found` is true), print the repository number and name
-            if (found) then
-               print *, count//'. ', value
-            end if
-
+         do
             ! Increment the counter for the next repository
             i = i + 1
-
+            
             ! Convert the updated counter to its string representation and store it in count variable
             count = to_string(i)
-
-            ! Fetch the name of the next repository (based on the updated `i` counter) and update `found` accordingly
+            
+            ! Fetch the name of the current repository (based on the `i` counter) and check if it exists
             call json%get('['//count//'].name', value, found)
-
+            if(.not.found) exit
+            
+            ! If the repository name exists (`found` is true), print the repository number and name
+            print *, count//'. ', value            
+            
          end do
       end if
    end subroutine print_org_repositories
 end module github_org_analyzer
 ```
 
-### **Step 7: Call the Subroutine in `main.f90`**
+### Step 5: Call the Subroutine in `main.f90`
 
 Open the `main.f90` file in the `app` folder and call the `print_org_repositories` subroutine:
 
@@ -194,7 +174,7 @@ program main
 end program main
 ```
 
-### **Step 8: Run the Program**
+### Step 6: Run the Program
 
 Now that you've completed all the steps, it's time to run the program:
 
