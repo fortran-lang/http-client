@@ -94,45 +94,20 @@ In this example, we make a GET request to the URL https://jsonplaceholder.typico
 
 ## Getting Started Guides 👋
 
+To begin your journey with our package, dive into the comprehensive tutorial available here 👇 
 
-### Table of contents: 
+**Tutorial link : [link](./tutorial/tutorial.md)**
 
-- ### [Installation 🌈](tutorial/tutorial.md#installation)
-
-- ### [Making HTTP Requests 🚀](tutorial/tutorial.md#making-http-requests-f09f9a80-1)
-    - [**Sending `GET` Requests**](tutorial/tutorial.md#sending-get-requests)
-        - [*Accessing Response `Content`*](tutorial/tutorial.md#accessing-response-content)
-        - [*Extracting `Content Length`*](tutorial/tutorial.md#extracting-content-length)
-        - [*Retrieving `Status Codes`*](tutorial/tutorial.md#retrieving-status-codes)
-        - [*Handling `Errors`*](tutorial/tutorial.md#handling-errors)
-        - [*Getting Response `Headers`*](tutorial/tutorial.md#getting-response-headers)
-        - [*Understanding `pair_type` derived type*](tutorial/tutorial.md#understanding-pair_type-derived-type)
-        - [*Sending Custom `Headers`*](tutorial/tutorial.md#sending-custom-headers)
-        - [*Setting Request `Timeout`*](tutorial/tutorial.md#setting-request-timeout)
-        - [*Setting `Authentication`*](tutorial/tutorial.md#setting-authentication)
-    - [**Sending `POST` Requests**](tutorial/tutorial.md#sending-post-request)
-        - [*Sending Data using `data`*](tutorial/tutorial.md#sending-data-using-data)
-        - [*Sending Data using `form`*](tutorial/tutorial.md#sending-data-using-form)
-        - [*Sending Data using `file`*](tutorial/tutorial.md#sending-data-using-file)
-    - [**Sending `PUT` Requests**](tutorial/tutorial.md#sending-put-requests)
-    - [**Sending `PATCH` Requests**](tutorial/tutorial.md#sending-patch-requests)
-    - [**Sending `DELETE` Requests**](tutorial/tutorial.md#sending-delete-requests)
-    - [**Sending `HEAD` Requests**](tutorial/tutorial.md#sending-head-requests)
-
-- ### [Real Projects 🤖](tutorial/tutorial.md#real-projects-f09fa496-1)
 
 ## Projects Currently using `http` package 🥳
 
 * **[github-org-analyzer](https://github.com/rajkumardongre/github-org-analyzer):** This Fortran project **provides procedures to analyze GitHub organizations and retrieve valuable information about their repositories**. By leveraging the power of the `http-client` package, this analyzer fetches data from the GitHub API to generate insightful reports.
 
-    *~By [Rajkumar Dongre (rajkumardongre)](https://github.com/rajkumardongre)*
 * **[fortran-xkcd](https://github.com/rajkumardongre/fortran-xkcd/tree/http_client_version):** An fpm example project written in Fortran 2018 that displays the latest xkcd comic inside an X window. As a limitation, only images in PNG format are supported (no JPEG). The alt text will be printed to console.
 
-    *~By [Philipp (interkosmos)](https://github.com/interkosmos)*
 
 * **[foropenai](https://github.com/gha3mi/foropenai):** A Fortran library for OpenAI API.
 
-    *~By [AliG (gha3mi)](https://github.com/gha3mi)*
 
 If you're utilizing the `http` package in your Fortran project and would like to be included on this list, we welcome you to contribute by creating a pull request (PR) and adding your project details. 
 
