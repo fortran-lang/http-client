@@ -43,6 +43,7 @@ module http_request
         type(pair_type), allocatable :: file
             !! Used to store information about files to be sent in HTTP requests.
         integer(kind=int64) :: timeout
+            !! **`Timeout`** value for the request in **seconds**.
         type(pair_type), allocatable :: auth
             !! Stores the username and password for Authentication
     end type request_type

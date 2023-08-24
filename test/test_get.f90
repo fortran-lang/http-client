@@ -22,9 +22,8 @@ program test_get
       pair_type('Set-Cookie', 'Theme-Light'), &
       pair_type('Set-Cookie', 'Auth-Token: 12345'), &
       pair_type('User-Agent', 'my user agent') &
-      ]
+    ]
 
-    ! res = request(url='https://reqres.in/api/users/1', header=request_header)
     res = request(url='https://dummyjson.com/products/1', header=request_header)
     
     msg = 'test_get: '
