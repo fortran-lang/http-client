@@ -1,4 +1,4 @@
-# Building a [GitHub Organization Analyzer](https://github.com/rajkumardongre/github-org-analyzer) in Fortran, using `http-client` 🚀
+# Building a [GitHub Organization Analyzer](./github-org-analyzer/README.md) in Fortran, using `http-client` 🚀
 
 In this tutorial, we'll create a simple Fortran program that uses the [GitHub API](https://docs.github.com/en/rest?apiVersion=2022-11-28) to retrieve and display all the repositories of the [`fortran-lang`](https://github.com/fortran-lang) organization. We'll use the [`http-client`](https://github.com/fortran-lang/http-client) and [`json-fortran`](https://github.com/jacobwilliams/json-fortran) libraries to make API requests and handle JSON responses.
 
@@ -219,6 +219,6 @@ Fortran lang All repositories:
 
 👨‍💻 Feel free to explore the full capabilities of the [`http-client`](https://github.com/fortran-lang/http-client) library to create more advanced projects!
 
-Moreover, we highly encourage you to actively contribute to the [github-org-analyzer](https://github.com/rajkumardongre/github-org-analyzer) project. You have the opportunity to propose and implement new features, address any bugs, and enhance the existing code.
+Moreover, we highly encourage you to actively contribute to the [github-org-analyzer](./github-org-analyzer/README.md) project. You have the opportunity to propose and implement new features, address any bugs, and enhance the existing code.
 
 Happy Coding! 👋 

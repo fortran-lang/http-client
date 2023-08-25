@@ -96,7 +96,7 @@ method, and content. If the request fails, we print the error message.
 ## Getting Started Guides
 
 To begin your journey with our package, dive into the comprehensive tutorial
-available here: [tutorial.md](./tutorial/tutorial.md)**.
+available here: [tutorial.md](./tutorial/tutorial.md).
 
 ## Projects using http-client
 
@@ -107,8 +107,7 @@ and parsing data from the GitHub API.
 An fpm example project that displays the latest xkcd comic inside an X window.
 As a limitation, only images in PNG format are supported.
 The alt text will be printed to console.
-* [foropenai](https://github.com/gha3mi/foropenai): A Fortran library to access
-* the OpenAI API.
+* [foropenai](https://github.com/gha3mi/foropenai): A Fortran library to access the OpenAI API.
 
 If you're using http-client in your Fortran project and would like to be
 included on this list, we welcome you to contribute by creating a pull request
