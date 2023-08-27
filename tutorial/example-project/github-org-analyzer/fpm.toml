@@ -1,0 +1,23 @@
+name = "github-org-analyzer"
+version = "0.1.0"
+license = "license"
+author = "Rajkumar"
+maintainer = "rajkumardongre17@gmail.com"
+copyright = "Copyright 2023, Rajkumar"
+[build]
+auto-executables = true
+auto-tests = true
+auto-examples = true
+module-naming = false
+[install]
+library = false
+[fortran]
+implicit-typing = false
+implicit-external = false
+source-form = "free"
+
+[dependencies]
+http.git = "https://github.com/fortran-lang/http-client.git"
+stdlib = "*"
+json-fortran = { git = "https://github.com/jacobwilliams/json-fortran.git" }
+

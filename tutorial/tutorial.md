@@ -3,7 +3,7 @@
 
 ### **Table of contents:** 📜 
 
-1. ### [**Installation** 🌟](#installation)
+1. ### [**Installation** 🌟](#installation-f09f8c9f-1)
 
 2. ### [**Making HTTP Requests** 🚀](#making-http-requests-f09f9a80-1)
     - [**Sending `GET` Requests**](#sending-get-requests)
@@ -28,7 +28,7 @@
 3. ### [**Real Projects** 🤖](#real-projects-f09fa496-1)
     
 
-1. # **Installation** 🌟
+# **Installation** 🌟
 
  Before building the `http-client` library, ensure that you have the necessary dependencies installed. On Ubuntu, you need to install the curl development headers. Use the following command:
 
@@ -44,7 +44,9 @@ http = { git = "https://github.com/fortran-lang/http-client.git" }
 stdlib = "*"
 ```
 
-2. # **Making HTTP Requests** 🚀
+[Go Top](#table-of-contents-📜)
+
+# **Making HTTP Requests** 🚀
 ## **Sending `GET` Requests**
 Let's First Import `http` package into our program
 ```fortran
@@ -85,6 +87,9 @@ To access the content of the server's response, use the `content` attribute:
 ```fortran
 print *, 'Response Content: ', response%content
 ```
+
+[Go Top](#table-of-contents-📜)
+
 ### **Extracting `Content Length`**
 
 You can retrieve the response content length using the `content_length` attribute:
@@ -92,6 +97,8 @@ You can retrieve the response content length using the `content_length` attribut
 ```fortran
 print *, 'Response Length: ', response%content_length
 ```
+[Go Top](#table-of-contents-📜)
+
 
 ### **Retrieving `Status Codes`**
 
@@ -100,6 +107,8 @@ HTTP response [`status codes`](https://developer.mozilla.org/en-US/docs/Web/HTTP
 ```fortran
 print *, 'Response Code: ', response%status_code
 ```
+[Go Top](#table-of-contents-📜)
+
 ### **Handling `Errors`**
 
 Ensuring robust error handling is crucial when working with HTTP requests. You can verify the success of your request by inspecting the `ok` attribute in the response. If the attribute is `.false.`, it indicates a request failure. Conversely, if it's `.true.`, the HTTP request was successful.
@@ -122,6 +131,8 @@ end if
 > **Note:** 
 >
 > Always prioritize checking the `ok` attribute of the response to identify any request failures. Incorporate the provided code snippet whenever you are processing the response to ensure comprehensive error management. This practice will help you build more robust and reliable HTTP interactions.
+
+[Go Top](#table-of-contents-📜)
 
 ### **Getting Response `Headers`**
 
@@ -181,6 +192,9 @@ end program get
 
 Before we proceed, it's crucial to grasp the `pair_type` derived type, as we will be utilizing it in various scenarios.
 
+[Go Top](#table-of-contents-📜)
+
+
 ### **Understanding `pair_type` derived type**
 
 It is use to store a **name-value pair**.
@@ -209,6 +223,7 @@ It serves various purposes within the `http` package.
     - `name` to represent the **username**
     - `value` to represent the **password**
 
+[Go Top](#table-of-contents-📜)
 
 ### **Sending Custom `Headers`**
 
@@ -245,6 +260,9 @@ program send_headers
     end if
 end program send_headers
 ```
+
+[Go Top](#table-of-contents-📜)
+
 ### **Setting Request `Timeout`**
 
 The overall `timeout` for the request, which is the time the entire request must complete. The value of this timeout(**in seconds**) can be set by passing the `timeout` parameter to the `request()` function.
@@ -273,6 +291,9 @@ program timeout
     end if
 end program timeout
 ```
+
+[Go Top](#table-of-contents-📜)
+
 
 ### **Setting `Authentication`**
 
@@ -318,6 +339,7 @@ Output  :
 >
 >It sends the **username** and **password** over the network **in plain text, easily captured by others**.
 
+[Go Top](#table-of-contents-📜)
 ## **Sending `POST` Request**
 
 An HTTP `POST` request is used to send data to a server, where data are shared via the body of a request. You can send a `POST` request by setting `method` parameter of `request()` function to `HTTP_POST`.
@@ -340,6 +362,8 @@ end program post
 Within the `http` package, there are several options for sending data, accomplished through three mainly parameters: `data`, `form`, and `file` within the `request()` function.
 
 Now let's see each of them 🧐 
+
+[Go Top](#table-of-contents-📜)
 
 ### **Sending Data using `data`**
 
@@ -409,6 +433,9 @@ program post
     end if
 end program post
 ``` 
+
+[Go Top](#table-of-contents-📜)
+
 ### **Sending Data using `form`**
 
 When you need to transmit HTML form data to the server, you can utilize the `form` parameter to pass the data. The `form` parameter accepts an array of `pair_type` objects, where each `pair_type` object represents a **single form field**.
@@ -445,6 +472,7 @@ program post_form_data
     end if
 end program post_form_data
 ```
+[Go Top](#table-of-contents-📜)
 
 ### **Sending Data using `file`**
 
@@ -488,6 +516,8 @@ end program post_file
 
 - If `data`, `form`, and `file` are all provided, only `data` is sent, and the `form` and `file` inputs are ignored.
 
+[Go Top](#table-of-contents-📜)
+
 ## **Sending `PUT` Requests**
 
 Sending a `PUT` request is quite similar to sending a [`POST`](#sending-post-request) request. In this case, the `method` parameter should be set to `HTTP_PUT`.
@@ -520,6 +550,8 @@ program put
     end if
 end program put
 ``` 
+
+[Go Top](#table-of-contents-📜)
 
 ## **Sending `PATCH` Requests**
 
@@ -554,6 +586,8 @@ program patch
 end program patch
 ``` 
 
+[Go Top](#table-of-contents-📜)
+
 ## **Sending `DELETE` Requests**
 
 To send a `DELETE` request, simply set the `method` parameter to `HTTP_DELETE`.
@@ -577,6 +611,7 @@ program delete
     end if
 end program delete
 ``` 
+[Go Top](#table-of-contents-📜)
 
 ## **Sending `HEAD` Requests**
 
@@ -601,11 +636,16 @@ program head
     end if
 end program head
 ```
+[Go Top](#table-of-contents-📜)
 
-3. # **Real Projects** 🤖
+# **Real Projects** 🤖
 
 -  [**GitHub organization analyzer**](example-project/github-org-analyzer.md) : 
 
     This Fortran project **provides procedures to analyze GitHub organizations and retrieve valuable information about their repositories**. By leveraging the power of the `http-client` package, this analyzer fetches data from the GitHub API to generate insightful reports.
 
 - There are many more to come... 
+
+Happy Coding! 👋 
+
+[Go Top](#table-of-contents-📜)
