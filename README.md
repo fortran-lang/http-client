@@ -109,6 +109,8 @@ As a limitation, only images in PNG format are supported.
 The alt text will be printed to console.
 * [foropenai](https://github.com/gha3mi/foropenai): A Fortran library to access the OpenAI API.
 
+* [fortelegram-bot](https://github.com/vypivshiy/fortelegram-bot): An Example of simple telegram bot
+
 If you're using http-client in your Fortran project and would like to be
 included on this list, we welcome you to contribute by creating a pull request
 (PR) and adding your project details. 
